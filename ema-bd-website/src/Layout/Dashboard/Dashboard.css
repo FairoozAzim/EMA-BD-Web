@@ -1,0 +1,137 @@
+.sidebar{
+    width: 20%;
+    height: 100vh;
+    background-color: #162b56;
+    border-left: 10px solid var(--blue);
+    transition: 0.5s;
+    overflow: hidden;
+    position: fixed;
+}
+.sidebar ul{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+.sidebar ul li a {
+   text-decoration: none;
+   list-style: none;
+   color: aliceblue;
+   position: relative;
+   display: block;
+   width: 100%;
+   display: flex;   
+}
+
+.sidebar ul li:nth-child(1) {
+    margin-top: 55px;
+  }
+.sidebar ul li{
+    list-style: none;
+
+}
+.sidebar ul li a{
+    padding: 15px;
+    height: 1.5em;
+    margin: 15px auto;
+    font-size: 20px;
+    position: relative;
+    width: 100%;
+    list-style: none;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    cursor: pointer;
+}
+.sidebar ul li a.active{
+    background-color: aliceblue;
+    color:#162b56;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+  }
+
+.icon{
+    margin-right: 10px;
+}
+
+.sidebar ul li:hover a{ 
+    background-color: aliceblue;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+.sidebar ul li:hover a{
+    color: #162b56;
+}
+
+.sidebar ul li:hover a::before{
+  content: "";
+  position: absolute;
+  right: 0;
+  top: -50px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 35px 35px 0 10px aliceblue;
+  pointer-events: none;
+}
+.sidebar ul li:hover a::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -50px;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 50%;
+  box-shadow: 35px -35px 0 10px aliceblue;
+  pointer-events: none;
+}
+
+.divider{
+    width: 100%;
+    margin-left: -12%;
+    margin-top: 20%;
+}
+/* ==============dashboard contents===========================*/
+.contents{
+    width: calc(100vw - 20%);
+    margin-left: 20%;
+    padding: 10px
+}
+.sidebar-menu-icon{
+    display: none;
+}
+@media screen and (max-width: 978px){
+    .side-menu span{
+     display: none;
+    }
+    .icon{
+        margin-right:12px;
+    }
+    .sidebar{
+        overflow-y: auto ;
+    }
+    /* .sidebar-menu-icon
+    {
+        display: block;
+        margin: 40px;
+        font-size: 2em;
+    }
+    .sidebar{
+        display: none;
+    }
+    .sidebar.menu-show{
+        display: block;
+        width: 30%;
+        top: 14%;
+    }
+    .header-divider
+    {
+        width: 100vw;
+    
+    }
+   .contents{
+    width: 100vw;
+   } */
+
+}

@@ -1,0 +1,4 @@
+1. install node, npm
+2. npm install
+3. npm audit fix - incase of issues after running command 2
+4. npm run dev

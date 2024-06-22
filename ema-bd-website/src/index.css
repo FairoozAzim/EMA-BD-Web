@@ -1,0 +1,59 @@
+body{
+  background-color: #162b560c;
+  margin: 0;
+  overflow-x: hidden ;
+}
+
+:root{
+  --navy-blue-color : #162b56;
+  --light-blue-color: #E9F6FF;
+  --orange-color: #c23911;
+  --shadow: rgba(149, 157, 165, 0.7) 0px 8px 24px;
+}
+/* ============Shared styles============  */
+.montserrat{
+  font-family: "Montserrat", sans-serif
+}
+.section-header{
+  font-size: 3em;
+  color: var(--navy-blue-color);
+  text-align: center;
+}
+.mt{
+  margin-top: 12%;
+}
+
+.mt-10{
+  margin-top: 5%;
+}
+.mt-5{
+  margin-top: 5%;
+}
+.d-flex{
+  display: flex;
+}
+.btn-red{
+  background-color: #c23911;
+  border: none;
+  border-radius: 24px;
+  width: auto;
+  padding: 10px 20px;
+  color: #fff;   
+  cursor: pointer;
+}
+
+.link-text{
+  text-decoration: none;
+  color: #000;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.text-center{
+  text-align: center;
+}
+@media screen and (max-width: 928px)
+{
+  .section-header{
+    font-size: 1.5rem;
+  }
+}

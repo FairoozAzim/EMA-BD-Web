@@ -1,0 +1,13 @@
+.about-details{
+    width: 60%;
+    padding: 10px;
+    margin: 0 auto;
+    text-align: justify;
+}
+.about-slider{
+    /* height: 50vh; */
+    margin: 0 auto;
+    padding: 5%;
+    background-color: #fff;
+
+}

@@ -1,0 +1,14 @@
+.upcoming-events
+{
+    background-color: var(--navy-blue-color);
+    padding: 15px;
+    width: 90%;
+    margin: 0 auto;
+    box-shadow: var(--shadow);
+    color: aliceblue !important;
+    border-radius: 10px;
+}
+.upcoming-events .section-header{
+    color: aliceblue !important;
+
+}

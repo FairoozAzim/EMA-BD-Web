@@ -1,0 +1,155 @@
+ /* Header wrapper styles */
+ .header-wrapper {
+    overflow: hidden;
+    position: fixed;
+    width: 100vw;
+    top:0;
+    z-index: 100000;
+    background-color: #fff;
+  }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #fff;
+    padding: 15px 10px;
+    margin: 0;
+    width: 100vw;
+    /* max-width: 1200px; */
+    height: 80px;
+  }
+  
+
+  /* Logo styles */
+  .logo {
+    width: 15%;
+
+    
+  }
+  
+  .logo img {
+    width: 100%;
+  }
+  
+  /* Navigation styles */
+  .nav {
+    width: 80%;
+    list-style: none;
+    padding: 0;
+    margin-right: 2%;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style: none;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+  }
+  .nav-list li a{
+    text-decoration: none;
+    color: rgba(12, 22, 43);
+  }
+  
+  .nav-item {
+    /* width: 100%;
+    margin-right: 1%;
+    font-size: 0.85em; */
+    margin-right: 3%;
+  }
+  
+  .nav-item:last-child {
+    margin-right: 0;
+  }
+  .nav-item a:hover{
+    color: rgb(194, 57, 17)
+  }
+  .header-divider {
+    width: 100%;
+    border: none;
+    border-top: 1px solid #ddd; /* Adjust color as needed */
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu-icon{
+
+    display: none;
+    margin-right: 10%;
+    cursor: pointer;
+  }
+/* responsive nav */
+
+  @media screen and (max-width: 978px)
+  
+  {
+    .header-wrapper {
+      overflow:visible;
+    }
+
+     .menu-icon{
+      display: block;
+      margin-right: 10%;
+      font-size: 2em;
+
+     }
+     .nav{
+      display: none;
+      
+     }
+     .nav.menu-show{
+      display: block;
+      width: 60%;
+      height: 100vh;
+      position: absolute;
+      top: 110px;
+      bottom: 0;
+      right:0;
+      background-color: aliceblue;
+      z-index: 100000;
+      margin: 0;
+      
+     }
+     .nav.menu-hide{
+      display: none;
+      width: 100%;
+     }
+     .nav-list {
+      display: flex;
+      flex-direction: column;
+      list-style: none;
+      width: 100%;
+      align-items: start;
+      justify-content: center;
+     
+    }
+   .nav-list li{
+    margin: 2% 0;
+    width: 70%;
+    text-align: center;
+    padding: 10px;
+    border-bottom: 1px solid rgb(145, 144, 144, 0.2);
+   }
+   .nav-list li:hover{
+    background-color: #fff;
+    color: #000;
+   }
+   .logo {
+    width: 35%;
+    
+  }
+  }
+
+  @media screen and (max-width: 425px){
+    .nav.menu-show{
+      display: block;
+      width: 80%;
+    }
+    .logo {
+      width: 40%;
+  
+      
+    }
+  }

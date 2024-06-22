@@ -1,0 +1,42 @@
+.accordion {
+    border: none;
+    margin: 10px auto;
+    width: 80%;
+   border-radius: 15px;
+  }
+  
+  .accordion-header {
+    background-color: #fff;
+    padding: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+  }
+  
+  .accordion-title {
+    margin: 0;
+    font-weight: 500;
+    font-family: 'montserrat', 'sans-serif';
+  }
+  
+  .accordion-content {
+    padding: 10px;
+    border-top: 1px solid #ccc;
+   
+  }
+  
+  .accordion-content.show {
+    display: block;
+  }
+  
+  .accordion-icon {
+    font-size: 16px;
+    transition: transform 0.3s ease;
+  }
+  
+  .accordion-icon.open {
+    transform: rotate(180deg);
+  }
+  

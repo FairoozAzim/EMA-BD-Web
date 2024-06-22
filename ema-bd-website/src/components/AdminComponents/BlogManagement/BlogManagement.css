@@ -1,0 +1,26 @@
+.blog-header{
+    width: 98%;
+    justify-content: space-between;
+    padding: 10px;
+    
+}
+.create-btn{
+   height: 50px;
+   font-weight: bold;
+   font-size: 18px;
+}
+.form-content{
+    margin: 0 auto;
+}
+.create-form input, textarea{
+    display: block;
+    width: 80%;
+    padding: 10px;
+    margin: 10px auto;
+    border-radius: 5px;
+    border: 1px solid gray;
+
+}
+.submit{
+    margin-left: 9% !important
+}

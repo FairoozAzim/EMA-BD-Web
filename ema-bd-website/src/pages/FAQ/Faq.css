@@ -1,0 +1,10 @@
+.faq-wrapper{
+    margin-top: 20%;
+}
+
+@media screen and (max-width: 768px)
+{
+    .faq-wrapper{
+        margin-top: 55%;
+    }
+}

@@ -1,0 +1,33 @@
+.team-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+  
+}
+
+.team-wrapper table thead{
+    font-weight: bolder;
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.team-wrapper table tbody{
+    margin-top: 10px !important;
+
+  
+}
+.team-wrapper table td{
+    padding: 10px;
+    margin: 10px;
+
+}
+.team-wrapper table tr {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  .team-wrapper table tr:last-child {
+    border-bottom: none;
+  }
+ .team-wrapper .item-img{
+    border: none !important;
+  }
