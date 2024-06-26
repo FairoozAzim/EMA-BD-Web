@@ -29,7 +29,7 @@ const Alumni = () => {
 
   return (
     <div className='mt alumnus-grid'>
-      <h1 className='section-header text-center'>Year 2022</h1>
+      <h1 className='section-header text-center'>Student and Alumni</h1>
       <div className='mt-5 team-grid'>
         {currentAlumni.map((member, index) => (
           <Profile
