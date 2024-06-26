@@ -8,7 +8,7 @@ const Profile = ({api, id, profile, url, name, position}) => {
         <div className="gallery-item">
          <div className="profile-info">
          <div className='item-img'>
-              <img src={`http://localhost:5000/uploads/alumni/${url}`}></img>
+              <img src={`http://localhost:5000/uploads/${url}`}></img>
               <div className='view-details'>
                <a href={profile} className='details-link'><FaLinkedinIn></FaLinkedinIn></a>
             </div>
