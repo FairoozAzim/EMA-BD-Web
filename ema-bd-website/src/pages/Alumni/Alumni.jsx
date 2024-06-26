@@ -11,7 +11,7 @@ import Pagination from '../../components/Pagination/Pagination';
 // }
 
 const Alumni = () => {
-  const alumni = useLoaderData(); // Assuming this provides your alumni data
+  const alumni = useLoaderData(); 
   // console.log(alumni)
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);

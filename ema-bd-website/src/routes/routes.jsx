@@ -132,7 +132,8 @@ import BlogDetails from "../pages/Blogs/BlogDetails";
         },
         {
           path: 'manageAlumni',
-          element: <AlumniManagement></AlumniManagement>
+          element: <AlumniManagement></AlumniManagement>,
+          loader: () => fetch('http://localhost:5000/alumni')
         },
         {
           path: 'logout',
