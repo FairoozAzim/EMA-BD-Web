@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import './Footer.css';
 function Footer() {
   return (
-    <footer>
+    <footer className='mt'>
       <div className="footer-content">
         <p>© 2024 My Website. All rights reserved.</p>
         <ul className="footer-links">
