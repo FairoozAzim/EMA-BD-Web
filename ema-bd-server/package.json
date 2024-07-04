@@ -1,7 +1,7 @@
 {
   "name": "ema-bd-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is the demo server for the EMA website\r ## Required Packages\r npm i\r npm install -g nodemon //\r # To Run the server:\r nodemon index.js",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -16,7 +16,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.6.2",
+    "mongodb": "^6.7.0",
+    "mongoose": "^8.4.4",
     "multer": "^1.4.5-lts.1"
   }
 }
