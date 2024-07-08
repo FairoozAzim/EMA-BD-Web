@@ -215,12 +215,12 @@ async function run() {
   app.post("/blogs", upload.single('blogImage'), (req,res) => {
       const newBlog = req.body;
       newBlog.blogImage = req.file.filename;
-      console.log("blog: ", newBlog);
+      // console.log("blog: ", newBlog);
       blogCollection.insertOne(newBlog)
       .then((blog) => {
         res.status(200).send({
           message: "Blog posted successfully",
-          data : blog
+          data : newBlog
         });;
       })
      .catch((error)=> {
@@ -235,10 +235,27 @@ async function run() {
   app.get('/blogs',async (req,res) => {
       const cursor = blogCollection.find();
       const blogsList = await cursor.toArray();
-      console.log(blogsList);
+      // console.log(blogsList);
       res.send(blogsList);
     })
-
+ app.post('blogs/like/:blogId/', async(req,res) => {
+  const blogId = req.params.blogId;
+  console.log(blogId);
+  blogCollection.updateOne(
+    { "_id": new ObjectId(blogId) },
+    { $inc: { likes: 1 } }
+  )
+  .then(result => {
+    if (result.modifiedCount > 0) {
+      res.status(200).send({ message: "Blog liked successfully" });
+    } else {
+      res.status(404).send({ message: "Blog not found" });
+    }
+  })
+  .catch(error => {
+    res.status(500).send({ message: "Something went wrong! Please try again.", error });
+  });
+ }) 
     //Get Blog by ID
   app.get('/blogs/:blogId',async (req,res) => {
     const blogId = req.params.blogId;
@@ -261,6 +278,8 @@ async function run() {
       res.status(500).json({ message: 'Internal Server Error' });
     })
     })
+
+    
     //===================================Alumni============================
     //get all alumni
     app.get('/alumni', async(req,res) => {
@@ -279,11 +298,13 @@ async function run() {
     res.send(memberList);
   })
  //======================Get Member by ID
-  app.get('/members/:memberId',async (req,res) => {
-    const memberId = req.params.memberId;
-    console.log(memberId);
-    const oId = new ObjectId(memberId);
-    memberCollection.find({"_id": oId}).next()
+  app.get('/profile/:profileId/:desgination',async (req,res) => {
+    const profileId = req.params.profileId;
+    const desg = req.params.desgination;
+    const oId = new ObjectId(profileId);
+    const profileCollection = (desg === 'team') ? memberCollection : alumniCollection;
+
+    profileCollection.find({"_id": oId}).next()
     .then((member)=> {
       if (!member) {
         return res.status(404).json({ message: 'Member doesn\'t exist' });
