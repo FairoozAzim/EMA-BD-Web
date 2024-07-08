@@ -8,7 +8,7 @@ const BlogCard = ({blog}) => {
         </div>
         <h3>{blog.title}</h3>
          <span>{blog.author}</span>
-         <p>{blog.text.slice(0,50)} ...</p>
+         <p>{blog.text?.slice(0,50)} ...</p>
          <span>{blog.date}</span>
          
          <button className='btn-red'><Link to ={`/blogs/${blog._id}`}>Read More</Link></button>

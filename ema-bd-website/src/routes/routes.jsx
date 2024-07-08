@@ -23,6 +23,7 @@ import TermsCOnditions from "../pages/TermsConditions/TermsCOnditions";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import ProtectedRoute from "./ProtectedRoute";
 import BlogDetails from "../pages/Blogs/BlogDetails";
+import Profile_Details from "../components/Profile/Profile_Details";
 // import EventDetails from "../components/EventsPage/EventDetails";
 
 
@@ -49,7 +50,12 @@ import BlogDetails from "../pages/Blogs/BlogDetails";
           path: "/alumni",
           element: <Alumni></Alumni>,
           loader: () => fetch('http://localhost:5000/alumni')
-        },       
+        },
+        {
+          path: "/profile/:profileId/:designation",
+          element: <Profile_Details></Profile_Details>,
+          loader: ({params}) => fetch(`http://localhost:5000/profile/${params.profileId}/${params.designation}`)
+        },      
         {
           path: "/contact",
           element: <Contact></Contact>

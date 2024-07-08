@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import './BlogManagement.css'
 import Modal from '../../Modal/Modal';
 import { MdOutlineFileUpload } from 'react-icons/md';
 import BlogCard from '../../../pages/Blogs/BlogCard';
+
+import './BlogManagement.css'
 
 const BlogManagement = () => {
 
@@ -47,16 +48,6 @@ const date = today.toDateString();
   formData.append("text", form.blogText.value);
   formData.append("blogImage",blogImage);
 
-  const title = form.title.value;
-  const author = form.authorName.value;
-  const postDate = date;
-  const postTime = time;
-  const text =form.blogText.value ;
-  const newBlog= {title, author, postDate, postTime, text};
-  // formData.append("banner", fileName);
-  
-
-  console.log(newBlog);
   fetch("http://localhost:5000/blogs", {
     method: 'POST',
     body: formData
@@ -65,8 +56,7 @@ const date = today.toDateString();
   .then(data => {
     console.log('post response', data);
     alert(data.message);
-    const addNewBlog = [...blogs, data];
-    setBlogs[addNewBlog];
+    setBlogs(prevBlogs => [...prevBlogs, data.data]);
     setImage(null);
     form.reset();
     setIsOpen(false);
@@ -114,11 +104,12 @@ const date = today.toDateString();
                      
                    </form>
                  </Modal>
+                 <hr className='header-divider'></hr>
                 <div className="blogs-wrapper">
             {
               blogs.map(blog => (
-                <BlogCard 
-                key= {blog._id}
+                <BlogCard
+                key={blog._id}
                 blog = {blog}
                 ></BlogCard>
               ))

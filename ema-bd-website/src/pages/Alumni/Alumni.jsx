@@ -31,11 +31,11 @@ const Alumni = () => {
     <div className='mt alumnus-grid'>
       <h1 className='section-header text-center'>Student and Alumni</h1>
       <div className='mt-5 team-grid'>
-        {currentAlumni.map((member, index) => (
+        {currentAlumni.map((alumni, index) => (
           <Profile
             key={index}
-            name={member.Name} // Assuming your alumni data has 'name'
-            position={member.Session} // Assuming your alumni data has 'subject'
+            designation = "alumni"
+            data = {alumni} 
           />
         ))}
       </div>

@@ -2,8 +2,14 @@ body{
   background-color: #162b560c;
   margin: 0;
   overflow-x: hidden ;
+  font-family: "Poppins", sans-serif; 
+  font-weight: 400;
+  font-style: normal;
+  color: #3b3b3b;
 }
-
+h1,h2,h3,h4{
+  font-family: 'Montserrat', sans-serif;
+}
 :root{
   --navy-blue-color : #162b56;
   --light-blue-color: #E9F6FF;
@@ -57,3 +63,11 @@ body{
     font-size: 1.5rem;
   }
 }
+
+/* #dark-blue: #0c1e43
+            #1e3970
+            #c23911 
+            #6fa3c1
+            #f7f7f4
+
+            */

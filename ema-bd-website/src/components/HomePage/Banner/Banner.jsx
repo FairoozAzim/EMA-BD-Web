@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import Image1 from '../../../Assets/images/Slider2.jpg';
 import Image2 from '../../../Assets/images/Slider1.jpg';
 import Image3 from '../../../Assets/images/slider4.jpg';
 
 import './Banner.css';
-import { BsArrowLeft, BsArrowRight } from 'react-icons/bs';
+// import { BsArrowLeft, BsArrowRight } from 'react-icons/bs';
 
 const Banner = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -15,9 +15,9 @@ const Banner = () => {
         setCurrentSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
     };
 
-    const prevSlide = () => {
-        setCurrentSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
-    };
+    // const prevSlide = () => {
+    //     setCurrentSlide(currentSlide === 0 ? slides.length - 1 : currentSlide - 1);
+    // };
 
     useEffect(() => {
         const intervalId = setInterval(nextSlide, 5000); // Change slide every 5 seconds

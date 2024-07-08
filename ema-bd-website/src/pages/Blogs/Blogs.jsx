@@ -1,6 +1,7 @@
-import { Link, useLoaderData } from 'react-router-dom';
+import {useLoaderData } from 'react-router-dom';
 import blogImg from '../../Assets/images/event3.jpg';
 import './Blogs.css'
+import BlogCard from './BlogCard';
 
 const Blogs = () => {
   const blogs=  useLoaderData()
@@ -84,18 +85,13 @@ const Blogs = () => {
           <div className="blogs-wrapper">
             
             {
-              blogLists.map(blog => (
-                <div className="blog-item" key={blog.id}>
-                  <div className='blog-card-img'>
-                    <img src={blog.blog_url}></img>
-                  </div>
-                  <h3>{blog.title}</h3>
-                   <span>{blog.author}</span>
-                   <p>{blog.content.slice(0,50)} ...</p>
-                   <span>{blog.date}</span>
-                   
-                   <button className='btn-red'><Link to ={`/blogs/${blog._id}`}>Read More</Link></button>
-                </div>
+              blogs.map(blog => (
+               <BlogCard
+               key= {blog._id}
+               blog = {blog}
+               >
+
+               </BlogCard>
               ))
             }
             </div>
