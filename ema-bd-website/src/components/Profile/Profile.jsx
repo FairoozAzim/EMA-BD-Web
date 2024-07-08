@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 const Profile = ({designation, data}) => {
 
    const {Name} = data;
+ 
    const [imageUrl, setImageUrl] = useState('');
    const [imageExists, setImageExists] = useState(true); // Assume image exists by default
 

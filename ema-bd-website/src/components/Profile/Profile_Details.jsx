@@ -9,12 +9,14 @@ const Profile_Details = () => {
     let { profileId, designation } = useParams();
     console.log(profileId, designation);
    const profile = useLoaderData();
-   const {Name} = profile
+   const {Name} = profile.data
+   
    const [imageUrl, setImageUrl] = useState('');
-   const [imageExists, setImageExists] = useState(true); // Assume image exists by default
+   const [imageExists, setImageExists] = useState(true);
   
    useEffect(() => {
       let url_name = Name?.replace(/ /g, '_');
+      print("url", url_name)
       const url_al = `http://localhost:5000/uploads/${url_name}.jpg`
       // Check if image exists
       fetch(url_al, { method: 'HEAD' })
