@@ -171,7 +171,7 @@ async function run() {
         eventCollection.find({ _id: { $lt: eventId } }).sort({ _id: -1 }).limit(1),
         eventCollection.find({ _id: { $gt: eventId } }).sort({ _id: 1 }).limit(1)
       ]);
-  
+       console.log(nextEvent);
       const response = {
         event,
         links: {
