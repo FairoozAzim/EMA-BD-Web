@@ -19,7 +19,7 @@ const Header = () => {
         <header className='header-wrapper'>
        <div className='header'>
         <div className="logo">
-        <img src={logo} alt="Erasmus Mundus Association - Bangladesh logo"/> 
+        <Link to = '/'><img src={logo} alt="Erasmus Mundus Association - Bangladesh logo"/></Link>
         </div>
       <div className='menu-icon'  onClick={() => toggleMobileNav()} >
       <CiMenuFries/>

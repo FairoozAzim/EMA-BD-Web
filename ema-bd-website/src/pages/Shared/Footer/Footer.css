@@ -19,6 +19,9 @@ footer {
     margin: 0 auto;
     font-size: 18px;
   }
+  .footer-content .rights{
+    font-size: 15px;
+  }
   
   .footer-links {
     list-style: none;

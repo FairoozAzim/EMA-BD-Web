@@ -16,7 +16,7 @@ const Profile_Details = () => {
   
    useEffect(() => {
       let url_name = Name?.replace(/ /g, '_');
-      print("url", url_name)
+
       const url_al = `http://localhost:5000/uploads/${url_name}.jpg`
       // Check if image exists
       fetch(url_al, { method: 'HEAD' })

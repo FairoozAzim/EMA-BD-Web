@@ -5,13 +5,10 @@ import { useLoaderData } from 'react-router-dom';
 import './Alumni.css';
 import Pagination from '../../components/Pagination/Pagination';
 
-// const alumniList = [];
-// for (let i = 0; i < 5; i++) {
-//   alumniList.push({ url: Avatar, name: "John Doe", subject: "EMJM ABC" });
-// }
 
 const Alumni = () => {
   const alumni = useLoaderData(); 
+  alumni.sort((a, b) => a.Name.localeCompare(b.Name));
   // console.log(alumni)
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
