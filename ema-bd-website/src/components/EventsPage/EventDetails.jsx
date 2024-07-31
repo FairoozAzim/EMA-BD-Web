@@ -19,7 +19,7 @@ const EventDetails = () => {
             </div>
           <div className="event-desc">
           <span>{eventData.date} {eventData.time}</span>
-            <p>{eventData.desc}</p>
+            <pre>{eventData.desc}</pre>
             <div className="event-footer d-flex">
                <Link className={` ${(prevId) ? 'show' : 'hide'}`} to ={`/events/${prevId}`}>Previous Event</Link> 
                <Link className={` ${(nextId) ? 'show' : 'hide'}`} to ={`/events/${nextId}`}>Next Event</Link> 
