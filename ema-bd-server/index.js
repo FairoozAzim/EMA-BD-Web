@@ -230,7 +230,9 @@ async function run() {
       });
      })
     })
-
+  app.post("/blogComments", (req, res) => {
+    
+  })
     //==================Get Blogs
   app.get('/blogs',async (req,res) => {
       const cursor = blogCollection.find();
@@ -238,24 +240,26 @@ async function run() {
       // console.log(blogsList);
       res.send(blogsList);
     })
- app.post('blogs/like/:blogId/', async(req,res) => {
-  const blogId = req.params.blogId;
-  console.log(blogId);
-  blogCollection.updateOne(
-    { "_id": new ObjectId(blogId) },
-    { $inc: { likes: 1 } }
-  )
-  .then(result => {
-    if (result.modifiedCount > 0) {
-      res.status(200).send({ message: "Blog liked successfully" });
-    } else {
-      res.status(404).send({ message: "Blog not found" });
-    }
-  })
-  .catch(error => {
-    res.status(500).send({ message: "Something went wrong! Please try again.", error });
-  });
- }) 
+    app.post('/blogs/like/:blogId', async (req, res) => {
+      const blogId = req.params.blogId;
+      console.log(blogId);
+    
+      try {
+        const result = await blogCollection.updateOne(
+          { "_id": new ObjectId(blogId) },
+          { $inc: { likes: 1 } }
+        );
+    
+        if (result.modifiedCount > 0) {
+          res.status(200).send({ message: "Blog liked successfully" });
+        } else {
+          res.status(404).send({ message: "Blog not found" });
+        }
+      } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: "Something went wrong! Please try again.", error });
+      }
+    });
     //Get Blog by ID
   app.get('/blogs/:blogId',async (req,res) => {
     const blogId = req.params.blogId;
