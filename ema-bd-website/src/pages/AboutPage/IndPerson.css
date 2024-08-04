@@ -1,0 +1,33 @@
+.ind-person-container {
+    padding: 20px;
+}
+
+.image-container {
+    text-align: center;
+    margin-bottom: 10px; /* Reduced space between image and title */
+}
+
+.ambassador-image {
+    width: 250px; /* Increased width for larger image */
+    height: auto;
+    border-radius: 8px; /* Optional: to make the image corners rounded */
+    border: 1px solid #ddd; /* Optional: border around the image */
+    padding: 5px; /* Optional: padding inside the border */
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.1); /* Optional: shadow effect */
+}
+
+.speech-container {
+    width: 100%;
+    text-align: justify;
+    margin-top: 10px; /* Reduced space between title and text */
+}
+
+.speech-container h2 {
+    text-align: center;
+    margin-bottom: 10px; /* Reduced space between title and text */
+}
+
+.speech-container p {
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
