@@ -13,8 +13,18 @@ const BlogDetails = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const handleLike = () => {
-    
-    };
+       const updateLikes = parseInt(blogData.likes) + 1;
+       setLikes(updateLikes);
+       fetch("http://localhost:5000/blogComment", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(res => res.json())   
+      .then(data => {
+        console.log('post response', data);
+    })};
 
     const openModal = () => {
         setIsOpen(true);
@@ -23,7 +33,7 @@ const BlogDetails = () => {
     const closeModal = () => {
         setIsOpen(false);
       };
-    
+ 
     const handleCommentSubmit = () => {
      event.preventDefault();
      let formData = new FormData()
@@ -36,7 +46,7 @@ const BlogDetails = () => {
        method: 'POST',
        body: formData
      })
-     .then(res => res.json())
+     .then(res => res.json())   
      .then(data => {
        console.log('post response', data);
        alert(data.message);
@@ -62,7 +72,7 @@ const BlogDetails = () => {
                 <button className="comment-section">
                     <GoComment className="icon" onClick={openModal}/>
                 </button>
-                <Modal isOpen={isOpen} onClose={closeModal}>
+                <Modal className='mt-10' isOpen={isOpen} onClose={closeModal}>
                    <h3 className='text-center'>Create a Blog</h3>
                    <form className='create-form' onSubmit={handleCommentSubmit}>
                      <div className='form-content'>
