@@ -1,33 +1,33 @@
 import { FaLinkedinIn } from "react-icons/fa";
 import './Profile.css'
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 
 const Profile = ({designation, data}) => {
 
-   const {Name} = data;
+   // const {ID} = data;
  
-   const [imageUrl, setImageUrl] = useState('');
-   const [imageExists, setImageExists] = useState(true); // Assume image exists by default
+   // const [imageUrl, setImageUrl] = useState('');
+   // const [imageExists, setImageExists] = useState(true); // Assume image exists by default
 
-   useEffect(() => {
-      let url_name = Name?.replace(/ /g, '_');
-      const url_al = `http://localhost:5000/uploads/${url_name}.jpg`
+   // useEffect(() => {
+     
+   //    const url_al = `http://localhost:5000/uploads/${ID}.jpg`
       
   
-      // Check if image exists
-      fetch(url_al, { method: 'HEAD' })
-        .then(response => {
-          if (response.ok) {
-            setImageUrl(url_al); // Image exists
-          } else {
-            setImageExists(false); // Image does not exist
-          }
-        })
-        .catch(() => {
-          setImageExists(false); // Network error or other issues
-        });
-    }, [Name]); // Run effect whenever Name changes
+   //    // Check if image exists
+   //    fetch(url_al, { method: 'HEAD' })
+   //      .then(response => {
+   //        if (response.ok) {
+   //          setImageUrl(url_al); // Image exists
+   //        } else {
+   //          setImageExists(false); // Image does not exist
+   //        }
+   //      })
+   //      .catch(() => {
+   //        setImageExists(false); // Network error or other issues
+   //      });
+   //  }, [Name]); // Run effect whenever Name changes
 
    if (designation === 'team')
    {
@@ -54,15 +54,17 @@ const Profile = ({designation, data}) => {
    }
    else if (designation === 'alumni')
       {
-         const {_id, Name, ProgramName,LinkedIn } = data
+         const {ID,_id, Name, ProgramName,LinkedIn,Image } = data
+         console.log(ID, Image);
          const demoImageUrl = `http://localhost:5000/uploads/avatar.jpg`;
-        
+         const url =  `http://localhost:5000/uploads/${ID}.jpg`; 
+        console.log(url);
          return (
             <div className="gallery-item">
              <div className="profile-info">
              <div className='item-img'>
-             {imageExists ? (
-               <img src={imageUrl} alt={Name}></img>
+             {Image ? (
+               <img src={url} alt={Name}></img>
               ) : (
                  <img src={demoImageUrl} alt="Demo Image"></img>
                )}

@@ -1,85 +1,145 @@
-.event-card{
-    width: 70%;
-    height: 200px;
-    background-color: rgb(255, 255, 255);
-    align-items: center;
-    justify-content: space-between;
-    margin: 10px auto;
-    padding: 12px;
-}
-.event-details{
-    width: 50%;
-}
-.poster{
-    width: 20%;
-    height: 80%;
-}
-.poster img{
-    width: 100%;
-    object-fit: cover;
-    height: 100%;
-}
-.event-img{
-    width: 100%;
-    height: 100%;
-    margin: 0 auto;
-    padding: 2%;
-}
-.event-img img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.event-desc{
-    width: 90%;
-    margin-top: 2% !important;
-    margin: 0 auto;
-    font-family: 'Montserrat';
-    text-align: justify ;
-    color: rgb(76, 76, 76);
-}
-.event-desc pre{
-    font-family: "Poppins", sans-serif; 
-    font-size: 15px;
-    text-wrap: wrap;
-}
-.event-desc span{
-    
-    font-weight: bold;
-}
-
-.event-footer {
-    justify-content: space-between;
-    margin-top: 2%;
-}
-.event-footer a{
-    text-decoration: none;
-     color: rgb(76, 76, 76);
-}
-.show{
-    display: block;
-}
-.hide{
-    display: none;
-}
-
-@media screen and (max-width: 768px) {
-    .event-card{
-        height: 400px;
-        flex-direction: column-reverse;
-        justify-content: center;
-        gap: 10px;
-        border-radius: 10px;
-    }
-  
-    .poster{
-        width: 80%;
-        height: 40%;
-    }
-    .poster img{
-        border-radius: 10px;
-    }
-    .event-details{
-        width: 80%;
-    }
+.event-card { 
+    width: 70%; 
+    max-width: 800px; 
+    background-color: #fff; 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-between; 
+    margin: 20px auto; 
+    padding: 16px; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    border-radius: 8px; 
+    overflow: hidden; 
+    transition: transform 0.2s, box-shadow 0.2s; 
+} 
+ 
+.event-card:hover { 
+    transform: scale(1.02); 
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+} 
+ 
+.event-details { 
+    width: 50%; 
+    padding: 16px; 
+    font-family: 'Montserrat', sans-serif; 
+} 
+ 
+.poster { 
+    width: 868px; 
+    height: 294px; 
+    overflow: hidden; 
+    border-radius: 8px; 
+    margin: 0 auto; 
+} 
+ 
+.poster img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+    transition: transform 0.2s; 
+} 
+ 
+.poster img:hover { 
+    transform: scale(1.05); 
+} 
+ 
+.event-img { 
+    width: 1280px; 
+    height: 720px; 
+    overflow: hidden; 
+    border-radius: 8px; 
+    margin: 0 auto; 
+    padding: 0; 
+} 
+ 
+.event-img img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: contain; 
+    transition: transform 0.2s; 
+} 
+ 
+.event-img img:hover { 
+    transform: scale(1.05); 
+} 
+ 
+.event-desc { 
+    width: 90%; 
+    margin-top: 2%; 
+    margin: 0 auto; 
+    font-family: 'Montserrat', sans-serif; 
+    text-align: justify; 
+    color: rgb(76, 76, 76); 
+    line-height: 1.6; 
+} 
+ 
+.event-desc pre { 
+    font-family: 'Poppins', sans-serif;  
+    font-size: 15px; 
+    white-space: pre-wrap; 
+} 
+ 
+.event-desc span { 
+    font-weight: bold; 
+} 
+ 
+.event-footer { 
+    display: flex; 
+    justify-content: space-between; 
+    margin-top: 16px; 
+} 
+ 
+.event-footer a { 
+    text-decoration: none; 
+    color: #4c4c4c; 
+    transition: color 0.2s; 
+} 
+ 
+.event-footer a:hover { 
+    color: #000; 
+} 
+ 
+.show { 
+    display: block; 
+} 
+ 
+.hide { 
+    display: none; 
+} 
+ 
+@media screen and (max-width: 868px) { 
+    .event-card { 
+        flex-direction: column; 
+        justify-content: center; 
+        align-items: center; 
+        width: 100%; 
+        height: auto; 
+        padding: 16px; 
+    } 
+ 
+    .poster { 
+        width: 100%; 
+        height: auto; 
+        margin-bottom: 16px; 
+    } 
+ 
+    .poster img { 
+        border-radius: 8px; 
+    } 
+ 
+    .event-img { 
+        width: 100%; 
+        height: auto; 
+        margin-bottom: 16px; 
+    } 
+ 
+    .event-img img { 
+        border-radius: 8px; 
+    } 
+ 
+    .event-details { 
+        width: 100%; 
+        text-align: center; 
+        padding: 0; 
+    } 
 }

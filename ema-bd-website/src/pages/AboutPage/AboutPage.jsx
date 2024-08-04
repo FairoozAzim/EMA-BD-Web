@@ -1,5 +1,5 @@
+import { Link } from 'react-router-dom';
 import Slider from '../../components/Slider/Slider';
-
 import './AboutPage.css'
 
 const AboutPage = () => {
@@ -10,9 +10,9 @@ const AboutPage = () => {
             <div className="mt-10">
                 <h1 className='section-header'>Keynote from the Ambassador of EU Delegation</h1>
                 <p className='about-details'>Dear members of the Erasmus Mundus Association-Bangladesh (EMA-BD),
-It is with great pleasure and enthusiasm that I address you today on the transformative power 
-of Erasmus+ educational opportunities and cross-cultural exchange... </p>
-<button className='btn-red'>Read More</button>
+                 It is with great pleasure and enthusiasm that I address you today on the transformative power 
+                 of Erasmus+ educational opportunities and cross-cultural exchange... </p>
+                 <button className='btn-red'> <Link to='/keynote'>Read More</Link></button>
             </div>
     
           <div className='d-flex about-vision'>

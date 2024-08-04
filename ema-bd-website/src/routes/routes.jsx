@@ -24,6 +24,7 @@ import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import ProtectedRoute from "./ProtectedRoute";
 import BlogDetails from "../pages/Blogs/BlogDetails";
 import Profile_Details from "../components/Profile/Profile_Details";
+import IndPerson from "../pages/AboutPage/IndPerson";
 // import EventDetails from "../components/EventsPage/EventDetails";
 
 
@@ -105,6 +106,11 @@ import Profile_Details from "../components/Profile/Profile_Details";
         { 
           path: "/privacy",
           element:  <PrivacyPolicy></PrivacyPolicy>
+
+        },
+        { 
+          path: "/keynote",
+          element:  <IndPerson></IndPerson>
 
         },
 

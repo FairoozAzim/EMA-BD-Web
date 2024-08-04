@@ -8,7 +8,8 @@ import Pagination from '../../components/Pagination/Pagination';
 
 const Alumni = () => {
   const alumni = useLoaderData(); 
-  alumni.sort((a, b) => a.Name.localeCompare(b.Name));
+  console.log(" alumni",alumni);
+  alumni.sort((a, b) => a.Name .localeCompare(b.Name));
   // console.log(alumni)
 //   const [items, setItems] = useState([alumni]);
 
