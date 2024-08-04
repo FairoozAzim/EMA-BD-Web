@@ -31,7 +31,7 @@ const Profile = ({designation, data}) => {
    }
    else if (designation === 'alumni')
       {
-         const {ID,_id, Name, ProgramName,LinkedIn,Image } = data
+         const {ID,_id, Name, ProgramName,LinkedIn,Image, Session } = data
          console.log(ID, Image);
          const demoImageUrl = `http://localhost:5000/uploads/avatar.jpg`;
          const url =  `http://localhost:5000/uploads/${ID}.jpg`; 
@@ -52,6 +52,7 @@ const Profile = ({designation, data}) => {
                 
     
                 <p className='item-name'>{Name}</p>
+                <p>{Session}</p>
                 <small className='item-pos'>{ProgramName}</small>
              </div>
                 <Link to = {`/profile/${_id}/${designation}`} className='details-btn'>View Details</Link>

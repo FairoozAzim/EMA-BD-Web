@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 import { FaFacebookF, FaLinkedinIn, FaUniversity } from 'react-icons/fa';
 import { GiGraduateCap } from "react-icons/gi";
@@ -6,45 +5,24 @@ import { CiLink } from "react-icons/ci";
 import { TbCalendarClock } from "react-icons/tb";
 
 const Profile_Details = () => {
-    let { profileId, designation } = useParams();
-    console.log(profileId, designation);
+    let {designation } = useParams();
+    
    const profile = useLoaderData();
-   const {Name} = profile.data
    
-   const [imageUrl, setImageUrl] = useState('');
-   const [imageExists, setImageExists] = useState(true);
-  
-   useEffect(() => {
-      let url_name = Name?.replace(/ /g, '_');
-
-      const url_al = `http://localhost:5000/uploads/${url_name}.jpg`
-      // Check if image exists
-      fetch(url_al, { method: 'HEAD' })
-        .then(response => {
-          if (response.ok) {
-            setImageUrl(url_al); // Image exists
-          } else {
-            setImageExists(false); // Image does not exist
-          }
-        })
-        .catch(() => {
-          setImageExists(false); // Network error or other issues
-        });
-    }, [Name]); // Run effect whenever Name changes
-
     if (designation === 'alumni')
         {
 
      
-    const {About, Email, FBLink, LinkedIn, Name, OtherLink, ProgramName, Session, UniName} = profile.data;
+    const {About, Email, FBLink, LinkedIn, Name, OtherLink, ProgramName, Session, UniName, ID, Image} = profile.data;
     const demoImageUrl = `http://localhost:5000/uploads/avatar.jpg`;
+    const imageUrl =`http://localhost:5000/uploads/${ID}.jpg`;
     return (
         
         <div className="mt">
            <div className="profile-details-container">
       <div className="d-flex profile-details">
       <div className="prof-details-img">
-          {imageExists ? (
+          {Image ? (
                <img src={imageUrl} alt={Name}></img>
               ) : (
                  <img src={demoImageUrl} alt="Demo Image"></img>
