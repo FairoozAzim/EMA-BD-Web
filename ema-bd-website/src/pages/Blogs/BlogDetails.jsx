@@ -1,6 +1,7 @@
 import { useLoaderData } from "react-router-dom";
 import { SlLike } from "react-icons/sl";
 import { GoComment } from "react-icons/go";
+import Modal from '../../components/Modal/Modal';
 import { useState } from "react";
 
 
@@ -9,41 +10,41 @@ const BlogDetails = () => {
     const blogData = responseData.data;
     const [likes, setLikes] = useState(blogData.likes || 0);
     const [comments, setComments] = useState(blogData.comments || []);
-    const [newComment, setNewComment] = useState("");
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleLike = () => {
-        fetch(`http://localhost:5000/blogs/like/${blogData._id}/`, {
-            method: 'POST'
-        })
-        .then(res => res.json())
-        .then(data => {
-            // setLikes(data.likes);
-            console.log(data)
-        });
+    
     };
 
-    const handleCommentSubmit = (event) => {
-        event.preventDefault();
-        const comment = {
-            text: newComment,
-            date: new Date().toISOString()
-        };
-        console.log(comment);
-        
-        // fetch(`http://localhost:5000/blogs/${blogData._id}/comment`, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(comment)
-        // })
-        // .then(res => res.json())
-        // .then(data => {
-        //     setComments(data.comments);
-        //     setNewComment("");
-        // });
-    };
-
+    const openModal = () => {
+        setIsOpen(true);
+      };
+    
+    const closeModal = () => {
+        setIsOpen(false);
+      };
+    
+    const handleCommentSubmit = () => {
+     event.preventDefault();
+     let formData = new FormData()
+     const form = event.target;
+     formData.append("name",form.name.value);
+     formData.append("email",form.email.value);
+     formData.append("comment", form.comment.value);
+    
+     fetch("http://localhost:5000/blogComment", {
+       method: 'POST',
+       body: formData
+     })
+     .then(res => res.json())
+     .then(data => {
+       console.log('post response', data);
+       alert(data.message);
+       setComments(prevComments => [...prevComments, data.data]);
+       form.reset();
+       setIsOpen(false);
+     })
+    }
     return (
         <div className="mt-10 blog-details-container">
             <h1>{blogData.title}</h1>
@@ -59,23 +60,24 @@ const BlogDetails = () => {
                     <SlLike className="icon"/> {likes}
                 </button>
                 <button className="comment-section">
-                    <GoComment className="icon"/> {comments.length}
+                    <GoComment className="icon" onClick={openModal}/>
                 </button>
+                <Modal isOpen={isOpen} onClose={closeModal}>
+                   <h3 className='text-center'>Create a Blog</h3>
+                   <form className='create-form' onSubmit={handleCommentSubmit}>
+                     <div className='form-content'>
+                      <input name='name' type='text' placeholder='Your Name'></input>
+                      <input name='email' type='email' placeholder='Your Email'></input>
+                      <textarea name='comment' type='text' placeholder='Write a response' rows={20}></textarea>
+                      <button className='submit btn-submit' type='submit'>Submit</button>
+                     </div>
+                     
+                   </form>
+                 </Modal>
             </div>
             <hr />
             <div className="comments-container">
                 <h3>Comments</h3>
-                <form onSubmit={handleCommentSubmit}>
-                    <textarea
-                        className="comment-box"
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Write a comment"
-                        rows="3"
-                        required
-                    ></textarea>
-                    <button type="submit">Submit</button>
-                </form>
                 <div className="comments-list">
                     {comments.map((comment, index) => (
                         <div key={index} className="comment">
