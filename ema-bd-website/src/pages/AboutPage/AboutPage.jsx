@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Charles from '../../Assets/images/Charles.jpeg';
 import Slider from '../../components/Slider/Slider';
 import './AboutPage.css'
 
@@ -7,12 +8,19 @@ const AboutPage = () => {
         <div className="mt">
             <h1 className="section-header">About EMA-BD</h1>
             <p className='about-details'>EMA BD (Erasmus Mundus Association Bangladesh) is an independent and non-profit association managed by the EMA Country Representatives for Bangladesh along with other active Bangladeshi volunteers. Our mission is to foster educational and cultural exchange, enhance professional development, and build a strong network of Erasmus Mundus alumni and students in Bangladesh.</p>
-            <div className="mt-10">
+            <div className="mt-10 keynote-ch">
                 <h1 className='section-header'>Keynote from the Ambassador of EU Delegation</h1>
+               <div className='d-flex'>
+              <div className='person-img'>
+              <img src={Charles}></img>
+              </div>
+               <div className='person-spch'>
                 <p className='about-details'>Dear members of the Erasmus Mundus Association-Bangladesh (EMA-BD),
                  It is with great pleasure and enthusiasm that I address you today on the transformative power 
-                 of Erasmus+ educational opportunities and cross-cultural exchange... </p>
+                 of Erasmus+ educational opportunities and cross-cultural exchange... </p><br/>
                  <button className='btn-red'> <Link to='/keynote'>Read More</Link></button>
+               </div>
+               </div>
             </div>
     
           <div className='d-flex about-vision'>

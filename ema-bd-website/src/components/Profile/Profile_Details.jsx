@@ -36,7 +36,7 @@ const Profile_Details = () => {
         {
 
      
-    const {AboutText, Email, FBLink, LinkedIn, Name, OtherLink, ProgramName, Session, UniName} = profile.data;
+    const {About, Email, FBLink, LinkedIn, Name, OtherLink, ProgramName, Session, UniName} = profile.data;
     const demoImageUrl = `http://localhost:5000/uploads/avatar.jpg`;
     return (
         
@@ -61,7 +61,7 @@ const Profile_Details = () => {
             <div className="profile-about d-flex">
             <div className="about-text">
             <h3>About Me</h3>
-            <pre>{AboutText}</pre>
+            <pre>{About}</pre>
             </div>
             
            <div className="about-contact">

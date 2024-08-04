@@ -20,4 +20,22 @@
 .keynote{
     padding: 5%;
     text-align: justify;
+    
 }
+.keynote-ch{
+    background-color: var(--navy-blue-color);
+    color: aliceblue;
+    padding: 5%;
+}
+.person-img{
+    width: 400px;
+    height: 250px;
+    position: relative;
+  
+  }
+  .person-img img{
+    width: 100%;
+    height:100%;
+    border-radius: 50%;
+  }
+ 

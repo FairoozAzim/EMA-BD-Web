@@ -5,29 +5,6 @@ import { Link } from "react-router-dom";
 
 const Profile = ({designation, data}) => {
 
-   // const {ID} = data;
- 
-   // const [imageUrl, setImageUrl] = useState('');
-   // const [imageExists, setImageExists] = useState(true); // Assume image exists by default
-
-   // useEffect(() => {
-     
-   //    const url_al = `http://localhost:5000/uploads/${ID}.jpg`
-      
-  
-   //    // Check if image exists
-   //    fetch(url_al, { method: 'HEAD' })
-   //      .then(response => {
-   //        if (response.ok) {
-   //          setImageUrl(url_al); // Image exists
-   //        } else {
-   //          setImageExists(false); // Image does not exist
-   //        }
-   //      })
-   //      .catch(() => {
-   //        setImageExists(false); // Network error or other issues
-   //      });
-   //  }, [Name]); // Run effect whenever Name changes
 
    if (designation === 'team')
    {
