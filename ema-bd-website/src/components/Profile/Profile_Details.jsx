@@ -61,7 +61,7 @@ const Profile_Details = () => {
             <div className="profile-about d-flex">
             <div className="about-text">
             <h3>About Me</h3>
-            <p>{AboutText}</p>
+            <pre>{AboutText}</pre>
             </div>
             
            <div className="about-contact">
@@ -84,7 +84,7 @@ const Profile_Details = () => {
   else if (designation === 'team')
     {
           
-    const{linkedIn, url, name, position, email} = profile.data;
+    const{linkedIn, url, name, position, email, about} = profile.data;
     return (
         
         <div className="mt">
@@ -104,8 +104,8 @@ const Profile_Details = () => {
       <hr className="hr"></hr>
             <div className="profile-about d-flex">
             <div className="about-text">
-            {/* <h3>About Me</h3>
-            <p>{AboutText}</p> */}
+            <h3>About Me</h3>
+            <pre>{about}</pre> 
             </div>
             
            <div className="about-contact">

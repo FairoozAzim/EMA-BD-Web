@@ -116,9 +116,14 @@
  .profile-about .about-text{
   width: 50%;
   font-size: 15px;
-
   text-align: justify;
+  text-wrap: wrap;
  }
+.profile-about .about-text pre{
+  text-wrap: wrap;
+  font-size: 15px;
+  font-family: "Poppins", sans-serif; 
+}
 
  .profile-about .about-contact{
   width: 40%;
