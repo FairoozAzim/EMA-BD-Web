@@ -1,4 +1,3 @@
-import React from 'react';
 import Charles from '../../Assets/images/Charles.jpeg';
 import './IndPerson.css'; // Import the CSS file for styling
 
@@ -24,7 +23,7 @@ const IndPerson = () => {
                 </p>
                 <p>
                     <br/>
-                    The Erasmus+ programme embodies the European Union's commitment to fostering 
+                    The Erasmus+ programme embodies the European Union&quot;s commitment to fostering 
                     educational mobility and enhancing cooperation between institutions worldwide. It provides 
                     students, academics, and professionals with invaluable opportunities to study, teach, and 
                     collaborate in diverse cultural settings, thereby broadening their perspectives and preparing 
