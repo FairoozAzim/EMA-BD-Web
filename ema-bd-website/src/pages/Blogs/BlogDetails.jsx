@@ -64,7 +64,7 @@ const BlogDetails = () => {
             <div className="blog-banner-container">
                 <img className='blog-banner' src={`http://localhost:5000/uploads/${blogData.blogImage}`} alt="Blog banner" />
             </div>
-            <p>{blogData.text}</p>
+            <pre>{blogData.text}</pre>
             {/* <div className="blog-interactions">
                 <button className="like-button" onClick={handleLike}>
                     <SlLike className="icon"/> {likes}
