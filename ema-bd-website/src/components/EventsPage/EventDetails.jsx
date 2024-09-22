@@ -17,7 +17,7 @@ const EventDetails = () => {
             <div className="event-img">
             <img src={`http://localhost:5000/uploads/${eventData.banner}`}></img>
             </div>
-          <div className="event-desc">
+          <div className="mt-10 event-desc">
           <span>{eventData.date} {eventData.time}</span>
             <pre>{eventData.desc}</pre>
             <div className="event-footer d-flex">

@@ -1,60 +1,60 @@
 import { useLoaderData } from "react-router-dom";
-// import { SlLike } from "react-icons/sl";
-// import { GoComment } from "react-icons/go";
-// import Modal from '../../components/Modal/Modal';
-// import { useState } from "react";
+import { SlLike } from "react-icons/sl";
+import { GoComment } from "react-icons/go";
+import Modal from '../../components/Modal/Modal';
+import { useState } from "react";
 
 
 const BlogDetails = () => {
     const responseData = useLoaderData();
     const blogData = responseData.data;
-    // const [likes, setLikes] = useState(blogData.likes || 0);
-    // const [comments, setComments] = useState(blogData.comments || []);
-    // const [isOpen, setIsOpen] = useState(false);
+    const [likes, setLikes] = useState(blogData.likes || 0);
+    const [comments, setComments] = useState(blogData.comments || []);
+    const [isOpen, setIsOpen] = useState(false);
 
-    // const handleLike = () => {
-    //    const updateLikes = parseInt(blogData.likes) + 1;
-    //    setLikes(updateLikes);
-    //    fetch("http://localhost:5000/blogComment", {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   })
-    //   .then(res => res.json())   
-    //   .then(data => {
-    //     console.log('post response', data);
-    // })};
+    const handleLike = () => {
+       const updateLikes = parseInt(blogData.likes) + 1;
+       setLikes(updateLikes);
+       fetch("http://localhost:5000/blogComment", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(res => res.json())   
+      .then(data => {
+        console.log('post response', data);
+    })};
 
-    // const openModal = () => {
-    //     setIsOpen(true);
-    //   };
+    const openModal = () => {
+        setIsOpen(true);
+      };
     
-    // const closeModal = () => {
-    //     setIsOpen(false);
-    //   };
+    const closeModal = () => {
+        setIsOpen(false);
+      };
  
-    // const handleCommentSubmit = () => {
-    //  event.preventDefault();
-    //  let formData = new FormData()
-    //  const form = event.target;
-    //  formData.append("name",form.name.value);
-    //  formData.append("email",form.email.value);
-    //  formData.append("comment", form.comment.value);
+    const handleCommentSubmit = () => {
+     event.preventDefault();
+     let formData = new FormData()
+     const form = event.target;
+     formData.append("name",form.name.value);
+     formData.append("email",form.email.value);
+     formData.append("comment", form.comment.value);
     
-    //  fetch("http://localhost:5000/blogComment", {
-    //    method: 'POST',
-    //    body: formData
-    //  })
-    //  .then(res => res.json())   
-    //  .then(data => {
-    //    console.log('post response', data);
-    //    alert(data.message);
-    //    setComments(prevComments => [...prevComments, data.data]);
-    //    form.reset();
-    //    setIsOpen(false);
-    //  })
-    // }
+     fetch("http://localhost:5000/blogComment", {
+       method: 'POST',
+       body: formData
+     })
+     .then(res => res.json())   
+     .then(data => {
+       console.log('post response', data);
+       alert(data.message);
+       setComments(prevComments => [...prevComments, data.data]);
+       form.reset();
+       setIsOpen(false);
+     })
+    }
     return (
         <div className="mt-10 blog-details-container">
             <h1>{blogData.title}</h1>
@@ -65,7 +65,8 @@ const BlogDetails = () => {
                 <img className='blog-banner' src={`http://localhost:5000/uploads/${blogData.blogImage}`} alt="Blog banner" />
             </div>
             <pre>{blogData.text}</pre>
-            {/* <div className="blog-interactions">
+            <hr/>
+            <div className="blog-interactions">
                 <button className="like-button" onClick={handleLike}>
                     <SlLike className="icon"/> {likes}
                 </button>
@@ -84,7 +85,7 @@ const BlogDetails = () => {
                      
                    </form>
                  </Modal>
-            </div> */}
+            </div>
             {/* <hr />
             <div className="comments-container">
                 <h3>Comments</h3>

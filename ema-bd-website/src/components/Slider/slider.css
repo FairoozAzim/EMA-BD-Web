@@ -1,14 +1,13 @@
 
   :root {
-    --heights: 100%;
-    --widths: 70%;
+    --widths: 70vw;
   }
 
   .slider-container {
   
     background-color: var(--navy-blue-color); 
-    height: var(--heights);
-    width: var(--widths);
+    /* height: var(--heights); */
+    width: var(--widths); 
     position: relative;
     margin-left:  auto;
     margin-right:  auto;

@@ -1,5 +1,5 @@
 .about-details{
-    width: 60%;
+    width: 100%;
     padding: 10px;
     margin: 0 auto;
     text-align: justify;
@@ -38,4 +38,15 @@
     height:100%;
     border-radius: 50%;
   }
- 
+ .person-spch .btn-red{
+    display: block;
+    margin-top: 15px;
+ }
+ .person-img{
+    width: 20%;
+ }
+ .person-spch{
+    margin-left: 2%;
+    width: 80%;
+    margin-top: 15px;
+ }

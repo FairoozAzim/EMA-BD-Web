@@ -17,6 +17,12 @@ export default [
             title: "Third Slide",
             text: "EMA-BD is dedicated to work towards helping the incoming students and alumni.",
             url: Image3
+        },
+    
+        {
+            title: "Fourth Slide",
+            text: "EMA-BD is dedicated to work towards helping the incoming students and alumni.",
+            url: Image3
         }
     
 ];

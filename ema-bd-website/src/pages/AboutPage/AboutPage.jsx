@@ -14,12 +14,13 @@ const AboutPage = () => {
               <div className='person-img'>
               <img src={Charles}></img>
               </div>
-               <div className='person-spch'>
+              <div className='person-spch'>
                 <p className='about-details'>Dear members of the Erasmus Mundus Association-Bangladesh (EMA-BD),
                  It is with great pleasure and enthusiasm that I address you today on the transformative power 
-                 of Erasmus+ educational opportunities and cross-cultural exchange... </p><br/>
+                 of Erasmus+ educational opportunities and cross-cultural exchange... </p>
                  <button className='btn-red'> <Link to='/keynote'>Read More</Link></button>
                </div>
+              
                </div>
             </div>
     
