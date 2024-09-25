@@ -3,14 +3,16 @@ import './IndPerson.css'; // Import the CSS file for styling
 
 const IndPerson = () => {
     return (
-        <div className="ind-person-container mt keynote">
+        <div className=" mt keynote">
+             <h2 className="text-center">Keynote</h2>
+            <div className='ind-person-container d-flex'>
             <div className="image-container">
                 <img src={Charles} alt="Charles Whiteley" className="ambassador-image"/>
             </div>
-            <h2 className="text-center">Keynote</h2>
+           
             <div className="speech-container">
-                <p className="mt-10">
-                    <h4>Dear members of the Erasmus Mundus Association-Bangladesh (EMA-BD),</h4><br/>
+                <p className="">
+                    <h3>Dear members of the Erasmus Mundus Association-Bangladesh (EMA-BD),</h3><br/>
                     It is with great pleasure and enthusiasm that I address you today on the transformative power 
                     of Erasmus+ educational opportunities and cross-cultural exchange. <br/>
                 </p>
@@ -33,7 +35,7 @@ const IndPerson = () => {
                     For students and professionals in Bangladesh, engaging with Erasmus+ opens doors to 
                     academic excellence, innovative research, and personal growth. It offers a platform to exchange 
                     ideas, knowledge, and best practices with peers from different backgrounds, laying the 
-                    groundwork for future leaders and change-makers. <br/>
+                    groundwork for future leaders and change-makers. <br/><br/>
                 </p>
                 <p>
                     As we look ahead, I encourage each of you to seize the opportunities that Erasmus Mundus 
@@ -44,13 +46,13 @@ const IndPerson = () => {
                     educational excellence and international cooperation. Your commitment to advancing 
                     Erasmus+ and fostering a vibrant community of learners and leaders. Furthermore, the launch 
                     of the EMA-BD website will serve as a pivotal platform for connecting our community, sharing 
-                    resources, and expanding opportunities for academic and cultural exchange. <br/>
+                    resources, and expanding opportunities for academic and cultural exchange. <br/><br/>
                 </p>
                 <p>
                     Together, let us celebrate the achievements of Erasmus Mundus and rededicate ourselves to 
                     building a brighter future through education, understanding, and shared humanity.
                     Thank you for your commitment to Erasmus+, and I look forward to witnessing the continued 
-                    success and impact of EMA-BD. <br/>
+                    success and impact of EMA-BD. <br/><br/>
                 </p>
                 <p>
                     Thank you. <br/>
@@ -58,6 +60,7 @@ const IndPerson = () => {
                     Ambassador and Head of Delegation<br/>
                     European Union Delegation to Bangladesh
                 </p>
+            </div>
             </div>
         </div>
     );
