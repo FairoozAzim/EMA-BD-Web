@@ -153,6 +153,71 @@ textarea :focus-visible{
     outline: none;
 }
 
+/* Sidebar styling */
+.comment-sidebar {
+    position: fixed;
+    right: 0;
+    top: 100px;
+    width: 300px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.close-sidebar {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.comment-form .form-group {
+    margin-bottom: 15px;
+}
+
+.comment-form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.comment-form input, .comment-form textarea {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.comment-form textarea {
+    resize: none;
+    height: 100px;
+}
+
+.submit-comment {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-comment:hover {
+    background-color: #0056b3;
+}
+
+
 @media screen and (max-width: 968px){
     .blogs-wrapper{
         display: grid;
