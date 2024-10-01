@@ -57,6 +57,7 @@ async function run() {
     const eventCollection = db.collection("Events");
     const blogCollection = db.collection("Blogs");
     const alumniCollection = db.collection("StudentsAlumni");
+    const commentCollection = db.collection("Comments")
     
   
     // ======================Login Endpoint =======================================
@@ -231,9 +232,27 @@ async function run() {
       });
      })
     })
-  app.post("/blogComments", (req, res) => {
-    
-  })
+
+    app.post("/blogComment", (req,res) => {
+      const newComment = req.body;
+      
+      console.log("comment: ", newComment);
+      commentCollection.insertOne(newComment)
+      .then((comment) => {
+        res.status(200).send({
+          message: "Comment posted successfully",
+          data : newComment
+        });;
+      })
+     .catch((error)=> {
+      res.status(400).send({
+        message: "Something went wrong! Please try again.",
+        error,
+      });
+     })
+    })
+
+
     //==================Get Blogs
   app.get('/blogs',async (req,res) => {
       const cursor = blogCollection.find();
