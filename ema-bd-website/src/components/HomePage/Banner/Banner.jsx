@@ -3,13 +3,16 @@ import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
 import Image1 from '../../../Assets/images/Slider2.jpg';
 import Image2 from '../../../Assets/images/Slider1.jpg';
 import Image3 from '../../../Assets/images/slider4.jpg';
+import Image4 from '../../../Assets/images/slider7.png';
+import Image5 from '../../../Assets/images/slider8.jpg';
+import Image6 from '../../../Assets/images/slider9.jpg';
 
 import './Banner.css';
 // import { BsArrowLeft, BsArrowRight } from 'react-icons/bs';
 
 const Banner = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const slides = [Image1, Image2, Image3];
+    const slides = [Image1, Image2, Image3, Image4, Image5, Image6];
 
     const nextSlide = () => {
         setCurrentSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);

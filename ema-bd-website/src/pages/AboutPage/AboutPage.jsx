@@ -11,7 +11,7 @@ const AboutPage = () => {
     return (
         <div className="mt">
             <h1 className="section-header">About EMA-BD</h1>
-            <p className='header-details'>EMA BD (Erasmus Mundus Association Bangladesh) is an independent and non-profit association managed by the EMA Country Representatives for Bangladesh along with other active Bangladeshi volunteers. Our mission is to foster educational and cultural exchange, enhance professional development, and build a strong network of Erasmus Mundus alumni and students in Bangladesh.</p>
+            <div className='header-text'>EMA BD (Erasmus Mundus Association Bangladesh) is an independent and non-profit association managed by the EMA Country Representatives for Bangladesh along with other active Bangladeshi volunteers. Our mission is to foster educational and cultural exchange, enhance professional development, and build a strong network of Erasmus Mundus alumni and students in Bangladesh.</div>
 
             <div className="mt-10 mission">
                 <h1 className="text-center">Our Mission and Vision</h1>
@@ -56,31 +56,12 @@ const AboutPage = () => {
                </div>
             </div>
     
-          {/* <div className='about-vision'>
-            
-
-           <h1 className="">Our Vision</h1>
-           <p className='about-details'>Our vision is to become a leading organization that empowers Bangladeshi students and alumni through education, collaboration, and community building, contributing to the socio-economic development of Bangladesh.</p>
-            
-            </div> */}
             <div className='mt-10 about-slider'>
                 <h1 className='text-center'>Insights from our leaders</h1>
                 <Slider></Slider>
              
             </div>
-           
         
-            {/* <div className="mt-10">
-                <h1 className="">Our Goals</h1>
-                <p className='about-details'>
-                    <ul>
-                        <li>Increase awareness and participation in the Erasmus Mundus program.</li>
-                        <li>Provide a robust support system for Erasmus Mundus students and alumni.</li>
-                        <li>Organize events and activities that enhance professional and personal growth.</li>
-                        <li>Strengthen the network of Bangladeshi Erasmus Mundus scholars and alumni.</li>
-                    </ul>
-                </p>
-            </div> */}
          
         </div>
     );

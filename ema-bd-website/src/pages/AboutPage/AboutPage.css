@@ -1,21 +1,23 @@
 .about-details{
     width: 100%;
-    padding: 10px;
+    /* padding: 10px; */
     margin: 0 auto;
     text-align: justify;
 }
 
-.header-details{
+.header-text{
     width: 70%;
     margin: 0 auto;
-    background-color: var(--navy-blue-color);
-    color: #fff;
+    background-color: var(--navy-blue-color) !important;
+    color: #fff !important;
     padding: 5%;
     /* font-size: 18px; */
     border-radius: 5px;
     text-align: justify;
     box-shadow: var(--shadow);
 }
+
+
 .about-slider{
     /* height: 50vh; */
     margin: 0 auto;
@@ -111,7 +113,17 @@
     width: 20%;
  }
  .person-spch{
-    margin-left: 2%;
+    margin-left: 5%;
     width: 80%;
     margin-top: 15px;
+ }
+
+ /* card css */
+
+ .card-wrapper{
+    background-color: rgb(245 243 240);
+    margin-top: 15px;
+    padding: 5%;
+    border-radius: 5px;
+    box-shadow: var(--shadow);
  }

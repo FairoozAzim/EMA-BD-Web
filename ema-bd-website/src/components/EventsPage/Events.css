@@ -107,6 +107,9 @@
     display: none; 
 } 
  
+.event-details .link-text{
+    color: var(--orange-color);
+}
 @media screen and (max-width: 868px) { 
     .event-card { 
         flex-direction: column; 

@@ -25,6 +25,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import BlogDetails from "../pages/Blogs/BlogDetails";
 import Profile_Details from "../components/Profile/Profile_Details";
 import IndPerson from "../pages/AboutPage/IndPerson";
+import CR_details from "../pages/AboutPage/CR_details";
+import EUD_details from "../pages/AboutPage/EUD_details";
 // import EventDetails from "../components/EventsPage/EventDetails";
 
 
@@ -109,8 +111,18 @@ import IndPerson from "../pages/AboutPage/IndPerson";
 
         },
         { 
-          path: "/keynote",
+          path: "/keynote/:name",
           element:  <IndPerson></IndPerson>
+
+        },
+        { 
+          path: "/keynoteCR",
+          element: <CR_details></CR_details>
+
+        },
+        { 
+          path: "/keynoteEud",
+          element: <EUD_details></EUD_details>
 
         },
 

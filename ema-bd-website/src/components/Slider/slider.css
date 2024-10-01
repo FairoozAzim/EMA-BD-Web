@@ -38,10 +38,14 @@
     align-items: center;
     justify-content: center;
     margin: 0 auto;
+    gap: 20px;
+    flex-direction: row-reverse;
   }
-  .slides-content h2{
-  color: #fff;
+  .slide-text{
+  color: #ffffffd3;
   width: 60%;
+  text-align: justify;
+  font-size: 15px;
 }
 .slide-image-container{
   width: 250px;
@@ -52,7 +56,7 @@
 .slide-image-container img{
   width: 100%;
   height:100%;
-  border-radius: 50%;
+  border-radius: 15px;
 }
 
   .prev,

@@ -34,12 +34,7 @@ const Blogs = () => {
 
             </div>
           </div>
-          <div className='blog-search-container d-flex'>
-            <h2>Read More Blogs</h2>
-            <div className='search-blogs'>
-              <p>Search Blogs</p>
-            </div>
-          </div>
+          
           <hr className='blog-divider'></hr>
         
           <div className="blogs-wrapper">

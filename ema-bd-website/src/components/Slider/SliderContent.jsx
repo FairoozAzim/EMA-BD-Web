@@ -10,7 +10,11 @@ const SliderContent = ({activeIndex, sliderImage}) => {
                 className= {index === activeIndex ? "slides-active" : "inactive"}
                 >
                 <div className="slides-content d-flex">
-                <h2>{slide.text}</h2>
+                <div className="slide-text">
+                <h4>{slide.name}</h4>
+                <p>{slide.text}</p>
+                </div>
+
                 <div className="slide-image-container">
                 <img className='slide-image' src={slide.url}></img>
                 </div>

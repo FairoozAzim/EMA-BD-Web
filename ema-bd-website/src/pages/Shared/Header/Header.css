@@ -1,6 +1,6 @@
  /* Header wrapper styles */
  .header-wrapper {
-    overflow: hidden;
+    /* overflow: hidden; */
     position: fixed;
     width: 100vw;
     top:0;
@@ -38,6 +38,7 @@
     list-style: none;
     padding: 0;
     margin-right: 2%;
+    position: relative;
   }
   
   .nav-list {
@@ -80,6 +81,34 @@
     margin-right: 10%;
     cursor: pointer;
   }
+  .dropdown-btn{
+    font-size: 20px;
+  }
+  .dropdown{
+    position: absolute;
+    /* width: 200px; */
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: var(--shadow);
+    list-style: none;
+    padding: 15px;
+    font-size: 12px;
+    left: 25%;
+    top: 100%;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    line-height: 30px;
+
+  }
+  .dropdown a{
+    text-decoration: none !important;
+    color: inherit;
+  }
+  .dropdown a:hover{
+    color: rgb(194, 57, 17)
+  }
+
 /* responsive nav */
 
   @media screen and (max-width: 978px)

@@ -93,61 +93,43 @@
 // export default BlogDetails;
 
 import { useLoaderData } from "react-router-dom";
-import { SlLike } from "react-icons/sl";
-import { GoComment } from "react-icons/go";
-import { useState } from "react";
+
+// import { useState } from "react";
 // import './BlogDetails.css'; // Assuming you'll add CSS here for styling
 
 const BlogDetails = () => {
     const responseData = useLoaderData();
     const blogData = responseData.data;
-    const [likes, setLikes] = useState(blogData.likes || 0);
-    const [comments, setComments] = useState(blogData.comments || []);
-    const [isOpen, setIsOpen] = useState(false);
-
-    const handleLike = () => {
-        const updateLikes = parseInt(blogData.likes) + 1;
-        setLikes(updateLikes);
-        fetch("http://localhost:5000/blogComment", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(res => res.json())   
-        .then(data => {
-            console.log('post response', data);
-        });
-    };
-
-    const openSidebar = () => {
-        setIsOpen(true);
-    };
-
-    const closeSidebar = () => {
-        setIsOpen(false);
-    };
+    // const [comments, setComments] = useState(blogData.comments || []);
+ 
 
     const handleCommentSubmit = (event) => {
         event.preventDefault();
-        let formData = new FormData();
+        let formData = new FormData()
         const form = event.target;
-        formData.append("name", form.name.value);
-        formData.append("email", form.email.value);
-        formData.append("comment", form.comment.value);
+        const newComment = {
+          "name": form.name.value,
+          "email" : form.email.value,
+          "comment" : form.comment.value,
+         
+        }
+        for (const key in newComment){
+          formData.append(key, newComment[key]);
+        }
+       console.log(formData);
 
-        fetch("http://localhost:5000/blogComment", {
-            method: 'POST',
-            body: formData,
-        })
-        .then(res => res.json())   
-        .then(data => {
-            console.log('post response', data);
-            alert(data.message);
-            setComments(prevComments => [...prevComments, data.data]);
-            form.reset();
-            setIsOpen(false); // Close sidebar after comment is submitted
-        });
+      fetch("http://localhost:5000/blogComment", {
+              method: 'POST',
+              body: formData,
+          })
+          .then(res => res.json())   
+          .then(data => {
+              console.log('post response', data);
+              alert(data.message);
+              // setComments(prevComments => [...prevComments, data.data]);
+              form.reset();
+              
+          });
     };
 
     return (
@@ -161,22 +143,12 @@ const BlogDetails = () => {
             </div>
             <pre>{blogData.text}</pre>
             <hr/>
-            <div className="blog-interactions">
-                <button className="like-button" onClick={handleLike}>
-                    <SlLike className="icon"/> {likes}
-                </button>
-                <button className="comment-section" onClick={openSidebar}>
-                    <GoComment className="icon"/>
-                </button>
+            <div className="blog-interactions d-flex">
+            <h3 className="mt-10">Have Questions? Leave us a comment! </h3>
             </div>
 
-            {/* Sidebar for comments */}
-            {isOpen && (
-                <div className="comment-sidebar">
-                    <div className="sidebar-header">
-                        <h2>Leave a Comment</h2>
-                        <button onClick={closeSidebar} className="close-sidebar">X</button>
-                    </div>
+                <div className="comment-box">
+                 
                     <form className="comment-form" onSubmit={handleCommentSubmit}>
                         <div className="form-group">
                             <label htmlFor="name">Name</label>
@@ -193,7 +165,7 @@ const BlogDetails = () => {
                         <button type="submit" className="submit-comment">Submit</button>
                     </form>
                 </div>
-            )}
+           
         </div>
     );
 };
