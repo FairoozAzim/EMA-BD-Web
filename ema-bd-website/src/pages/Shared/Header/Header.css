@@ -182,3 +182,39 @@
       
     }
   }
+  
+/* Dropdown wrapper */
+.dropdown-wrapper {
+  position: relative;
+}
+
+/* Dropdown menu initially hidden */
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  white-space: nowrap;
+  min-width: 200px; /* Ensure dropdown has enough width */
+}
+
+/* Show dropdown on hover */
+.dropdown-wrapper:hover .dropdown {
+  display: block;
+}
+
+/* Dropdown link styles */
+.dropdown a {
+  display: block;
+  padding: 10px 20px;
+  text-decoration: none;
+  color: black;
+}
+
+.dropdown a:hover {
+  background-color: #f0f0f0;
+  color: #007BFF;
+}
