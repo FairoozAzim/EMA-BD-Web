@@ -121,7 +121,7 @@ const handleImageUpload = event => {
                       <input name='title' type='text' placeholder='Event Title'></input>
                      <div className='d-flex double-input'>
                      {/* <input name='date' type='text' placeholder='Event Date'> */}
-                      <DatePicker className='date-time-input' name='date' selected={startDate} onChange={(date) => setStartDate(date)} placeholderText='Event Date' minDate={today}></DatePicker>
+                      <DatePicker className='date-time-input' name='date' selected={startDate} onChange={(date) => setStartDate(date)} placeholderText='Event Date'></DatePicker>
                      {/* </input> */}
                     <DatePicker 
                      className='date-time-input' 

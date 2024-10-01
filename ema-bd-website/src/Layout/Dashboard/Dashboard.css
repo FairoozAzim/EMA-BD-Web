@@ -33,7 +33,8 @@
 .sidebar ul li a{
     padding: 15px;
     height: 1.5em;
-    margin: 15px auto;
+    margin-top: 15px;
+    margin-left: -60px;
     font-size: 20px;
     position: relative;
     width: 100%;

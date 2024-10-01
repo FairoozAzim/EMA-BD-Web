@@ -6,13 +6,16 @@ import Image3 from '../../../Assets/images/slider4.jpg';
 import Image4 from '../../../Assets/images/slider7.png';
 import Image5 from '../../../Assets/images/slider8.jpg';
 import Image6 from '../../../Assets/images/slider9.jpg';
+import Image7 from '../../../Assets/images/1.png';
+import Image8 from '../../../Assets/images/2.png';
+import Image9 from '../../../Assets/images/7.png';
 
 import './Banner.css';
 // import { BsArrowLeft, BsArrowRight } from 'react-icons/bs';
 
 const Banner = () => {
     const [currentSlide, setCurrentSlide] = useState(0);
-    const slides = [Image1, Image2, Image3, Image4, Image5, Image6];
+    const slides = [Image1, Image2, Image3, Image4, Image5, Image6, Image7, Image8, Image9];
 
     const nextSlide = () => {
         setCurrentSlide(currentSlide === slides.length - 1 ? 0 : currentSlide + 1);
