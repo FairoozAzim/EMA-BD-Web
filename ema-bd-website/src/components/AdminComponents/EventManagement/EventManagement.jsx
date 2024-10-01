@@ -18,7 +18,7 @@ const [fileName, setFileName] = useState([]);
 const [events, setEvents] = useState([]);
 const [startDate, setStartDate] = useState(new Date());
 const [time, setTime] = useState("")
- const today = new Date();
+//  const today = new Date();
 // console.log("time", time);
 // console.log(events);
 const openModal = () => {
@@ -51,7 +51,7 @@ const handleImageUpload = event => {
   console.log(event.target.files);
   setImage(URL.createObjectURL(event.target.files[0]));
   setFileName(event.target.files[0]);
-  console.log(image);
+  // console.log(image);
 }
 
  const handleAddEvent = event => {
@@ -183,7 +183,7 @@ const handleImageUpload = event => {
                             <td>{event.title}</td>
                             <td>{event.date}</td>
                             <td className='text-center'>
-                              <button className='delete-btn' onClick={() => handleDeleteEvent(event._id)}><MdDelete /></button></td>
+                              <button className='delete-btn' onClick={() => handleDeleteEvent(event._id)}><MdDelete/></button></td>
                         </tr>
                         
                     )

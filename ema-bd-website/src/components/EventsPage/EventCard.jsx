@@ -7,8 +7,7 @@ const EventCard = ({event_details}) => {
     if(description && description.length > 50){
        description = description.slice(0,50) + '...';
     }
-    console.log("details", event_details.title);
-    console.log(description);
+   
     return (
         <div className='event-card d-flex'>
             <div className='event-details'>

@@ -36,7 +36,9 @@ const Header = () => {
             </li>
             <li onClick={removeActive} className="nav-item montserrat"><Link to='team'>Our Team</Link></li>
             <li onClick={removeActive} className="nav-item montserrat"><Link to='alumni'>Student and Alumni</Link></li>
-            <li onClick={removeActive} className="nav-item montserrat"><Link to='events'>Events</Link></li>
+            <li onClick={removeActive} className="nav-item montserrat dropdown-wrapper">
+              <Link to='events'>Events</Link>
+            </li>
             <li onClick={removeActive} className="nav-item montserrat"><Link to='blogs'>Blog</Link></li>
             <li onClick={removeActive} className="nav-item montserrat"><Link to='faq'>FAQ</Link></li>
             <li onClick={removeActive} className="nav-item montserrat"><Link to='contact'>Contact</Link></li>

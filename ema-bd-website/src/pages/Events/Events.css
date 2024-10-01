@@ -1,0 +1,24 @@
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    margin-left: auto;
+    margin-right: auto;
+    align-items: center;
+    justify-content: center;
+    
+}
+
+.tab {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    background-color: lightgray;
+    border-radius: 5px;
+   
+}
+
+.tab.active {
+    background-color: var(--orange-color);
+    color: white;
+}
