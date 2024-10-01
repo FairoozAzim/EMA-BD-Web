@@ -25,6 +25,31 @@
         "year": "2023"
     },
     {
+        "url" : "Deputy_Rakin_RAIHAN.jpeg",
+        "name":"Rakib Raihan",
+        "email":"",
+        "dob":"",
+        "contact ":"",
+        "facebook":"",
+        "linkedIn":"",
+        "others":null,
+        "programName":"",
+        "position":"Deputy Country Representative",
+        "about":"",
+        "year": "2023"
+    },
+
+    {
+        " url":"IT_CR_Sadad_Mahmud.png",
+         "name" :"Sadad Mahamud",
+         "position": "Coordinator of IT and Social Media",
+          "dob": "email,",
+         "email" : "sadad.mahamud@aalto.fi",
+         "linkedIn" : "",
+         "about" :"Holding the Erasmus Mundus Scholarship, I have completed my graduation in Joint International Master in Smart Systems Integrated Solutions (SSIs). I have been working with the Erasmus Mundus Association Bangladesh (EMA-BD) for the last two years as the IT and Social Media Coordinator. Web development and management are my major responsibilities, and I also manage EMA BD's social media pages and develop content for them. Feel free to reach out to us for any kind of collaboration or support. Thank you.",
+        " year" : "2023"
+     },
+    {
         "url": "Tanzila_Azad_Mow.jpg",
         "name":"Tanzila Azad Mow",
         "email":"azadmow03@gmail.com",
@@ -96,7 +121,7 @@
         "year": "2023"
        
     },
-
+  
     {
         "url" : "Shuvro_Sen.jpg",
         "name":"Shuvro Sen",

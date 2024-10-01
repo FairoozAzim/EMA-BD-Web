@@ -142,9 +142,9 @@
   cursor: pointer;
 
 }
-profile-details-info .icon{
-  width: 20px;
-  height: 20px;
+.profile-details-info .icon{
+  width: 25px !important;
+  height: 25    px;
   background-color: var(--orange-color);
   color: white;
   /* margin: 10px;

@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom';
-import Charles from '../../Assets/images/Charles.jpeg';
+
 import Slider from '../../components/Slider/Slider';
 import SupportIcon from '../../Assets/support-logo.png'
 import PromoteIcon from '../../Assets/promote-logo.png'
@@ -40,22 +39,7 @@ const AboutPage = () => {
                     </ul>
                
             </div>
-            <div className="mt-10 keynote-ch">
-                <h1 className=''>Keynote from the Ambassador of EU Delegation</h1>
-               <div className='d-flex'>
-              <div className='person-img'>
-              <img src={Charles}></img>
-              </div>
-              <div className='person-spch'>
-                <p className='about-details'>Dear members of the Erasmus Mundus Association-Bangladesh (EMA-BD),
-                 It is with great pleasure and enthusiasm that I address you today on the transformative power 
-                 of Erasmus+ educational opportunities and cross-cultural exchange... </p>
-                 <Link to='/keynote'> <button className='btn-red'>Read More</button></Link>
-               </div>
-              
-               </div>
-            </div>
-    
+           
             <div className='mt-10 about-slider'>
                 <h1 className='text-center'>Insights from our leaders</h1>
                 <Slider></Slider>
