@@ -47,7 +47,7 @@ const Banner = () => {
                 <div className='socials'>
                     <a href='https://www.facebook.com/ErasmusMundusAssociation.Bangladesh'><FaFacebookF /></a>
                     <a href='https://www.linkedin.com/company/ema-bd/'><FaLinkedinIn /></a>
-                    <a href='https://www.facebook.com/groups/105556129476392'><FaInstagram /></a>
+                    <a href='https://www.instagram.com/bd_ema/'><FaInstagram /></a>
                 </div>
             </div>
         </div>
