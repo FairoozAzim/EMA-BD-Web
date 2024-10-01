@@ -1,138 +1,98 @@
-.sidebar{
-    width: 20%;
-    height: 100vh;
+/* ==================== Sidebar Styling ==================== */
+.sidebar {
+    width: 250px; /* Fixed width for sidebar */
+    height: 100vh; /* Full height */
     background-color: #162b56;
-    border-left: 10px solid var(--blue);
-    transition: 0.5s;
-    overflow: hidden;
+    transition: width 0.3s ease; /* Smooth transition */
+    overflow-x: hidden; /* Prevent horizontal overflow */
     position: fixed;
-}
-.sidebar ul{
-    position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    z-index: 1000; /* Ensure sidebar is above other content */
+    padding-top: 20px;
 }
+
+.sidebar ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.sidebar ul li {
+    list-style: none;
+    margin-bottom: 15px;
+}
+
 .sidebar ul li a {
-   text-decoration: none;
-   list-style: none;
-   color: aliceblue;
-   position: relative;
-   display: block;
-   width: 100%;
-   display: flex;   
-}
-
-.sidebar ul li:nth-child(1) {
-    margin-top: 55px;
-  }
-.sidebar ul li{
-    list-style: none;
-
-}
-.sidebar ul li a{
-    padding: 15px;
-    height: 1.5em;
-    margin-top: 15px;
-    margin-left: auto;
-    font-size: 20px;
-    position: relative;
-    width: 100%;
-    list-style: none;
+    text-decoration: none;
+    color: aliceblue;
+    padding: 15px 20px; /* Adjusted padding for better text fit */
+    display: flex;
+    align-items: center;
+    font-size: 16px; /* Adjusted font size */
+    transition: 0.3s ease;
     border-top-left-radius: 30px;
     border-bottom-left-radius: 30px;
-    cursor: pointer;
 }
-.sidebar ul li a.active{
+
+.sidebar ul li a.active {
     background-color: aliceblue;
-    color:#162b56;
-    border-top-left-radius: 30px;
-    border-bottom-left-radius: 30px;
-  }
-
-.icon{
-    margin-right: 10px;
-}
-
-.sidebar ul li:hover a{ 
-    background-color: aliceblue;
-    border-top-left-radius: 30px;
-    border-bottom-left-radius: 30px;
-}
-.sidebar ul li:hover a{
     color: #162b56;
 }
 
-.sidebar ul li:hover a::before{
-  content: "";
-  position: absolute;
-  right: 0;
-  top: -50px;
-  width: 50px;
-  height: 50px;
-  background-color: transparent;
-  border-radius: 50%;
-  box-shadow: 35px 35px 0 10px aliceblue;
-  pointer-events: none;
-}
-.sidebar ul li:hover a::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: -50px;
-  width: 50px;
-  height: 50px;
-  background-color: transparent;
-  border-radius: 50%;
-  box-shadow: 35px -35px 0 10px aliceblue;
-  pointer-events: none;
+.sidebar ul li a:hover {
+    background-color: aliceblue;
+    color: #162b56;
 }
 
-.divider{
-    width: 100%;
-    margin-left: -12%;
-    margin-top: 20%;
+.sidebar ul li a .icon {
+    margin-right: 10px;
+    font-size: 20px;
 }
-/* ==============dashboard contents===========================*/
-.contents{
-    width: calc(100vw - 20%);
-    margin-left: 20%;
-    padding: 10px
+
+.divider {
+    margin: 20px 0;
+    border-top: 1px solid #fff;
 }
-.sidebar-menu-icon{
+
+/* ==================== Content Styling ==================== */
+.contents {
+    margin-left: 250px; /* Matches sidebar width */
+    padding: 20px;
+    transition: margin-left 0.3s ease;
+}
+
+.sidebar-menu-icon {
     display: none;
 }
-@media screen and (max-width: 978px){
-    .side-menu span{
-     display: none;
-    }
-    .icon{
-        margin-right:12px;
-    }
-    .sidebar{
-        overflow-y: auto ;
-    }
-    /* .sidebar-menu-icon
-    {
-        display: block;
-        margin: 40px;
-        font-size: 2em;
-    }
-    .sidebar{
-        display: none;
-    }
-    .sidebar.menu-show{
-        display: block;
-        width: 30%;
-        top: 14%;
-    }
-    .header-divider
-    {
-        width: 100vw;
-    
-    }
-   .contents{
-    width: 100vw;
-   } */
 
+/* ==================== Mobile Responsive Styling ==================== */
+@media screen and (max-width: 978px) {
+    .sidebar {
+        width: 0;
+        overflow-x: hidden;
+    }
+
+    .menu-show {
+        width: 250px;
+    }
+
+    .sidebar-menu-icon {
+        display: block;
+        font-size: 2em;
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        cursor: pointer;
+        color: #162b56;
+    }
+
+    .contents {
+        margin-left: 0;
+        transition: margin-left 0.3s ease;
+    }
+
+    .menu-show ~ .contents {
+        margin-left: 250px;
+    }
 }
