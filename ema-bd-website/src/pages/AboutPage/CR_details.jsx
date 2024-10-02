@@ -6,12 +6,12 @@ import CRData from './CR_dets';
 const CR_details = () => {
     return (
         <div>
-             <div className="mt keynote-ch">
-                <h1 className=''>EMA-BD Country Representatives</h1>
+             <div className="mt-10 keynote-ch">
+                <h1 className='text-center'>EMA-BD Country Representatives</h1>
                 {
                     CRData.map((item, index)=> (
-                    <div className="card-wrapper" key={index}>
-                        <div className='d-flex'>
+                    <div className="card-wrapper d-flex" key={index}>
+                       
                        <div className='person-img'>
                        <img src ={item.image}/>
                        </div>
@@ -28,7 +28,7 @@ const CR_details = () => {
                                 </p>
                           <Link to={`/keynote/${item.name}`}> <button className='btn-red'>Read More</button></Link>
                         </div>
-                       </div>
+                     
                     </div>
 
                     ))

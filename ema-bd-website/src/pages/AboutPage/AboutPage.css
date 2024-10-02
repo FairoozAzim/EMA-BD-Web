@@ -88,15 +88,13 @@
     
 }
 .keynote-ch{
-    /* background-color: var(--navy-blue-color);
-    color: aliceblue;
-    padding: 5%; */
-    padding-left: 15%;
-    padding-right: 15%;
+  padding: 0 5%;
+  width: 100%;
+
 }
 .person-img{
-    width: 600px;
-    height: 250px; 
+    width: 30%;
+    height: 300px;
     position: relative;
   
   }
@@ -106,29 +104,28 @@
     
     /* border-radius: 50%; */
   }
+  .person-spch{
+    width: 70%;
+    margin-left: 10px;
+  }
  .person-spch .btn-red{
     display: block;
     margin-top: 15px;
     text-decoration: none !important;
-
  }
- .person-img{
-    width: 20%;
- }
- .person-spch{
-    margin-left: 5%;
-    width: 80%;
-    margin-top: 15px;
- }
-
+.person-spch a{
+    text-decoration: none !important;
+}
  /* card css */
 
  .card-wrapper{
     background-color: rgb(245 243 240);
-    margin-top: 15px;
-    padding: 5%;
+    margin: 10px auto;
+    padding: 2%;
     border-radius: 5px;
     box-shadow: var(--shadow);
+    width: 60%;
+    /* height: 400px; */
  }
 
  
@@ -137,10 +134,16 @@
     .mission-list{
     
         grid-template-columns: repeat(2, 1fr);
-    
-    
     }
-    
+    .keynote-ch{
+        padding: 0 10px;
+    }
+    .card-wrapper{
+      width: 90%;
+    }
+   .person-spch{
+    font-size: 15px;
+   }
   }
  
  @media screen and (max-width: 678px)
@@ -148,8 +151,23 @@
     .mission-list{
     
         grid-template-columns: repeat(1, 1fr);
-    
-    
     }
-
+  
+  }
+ 
+ @media screen and (max-width: 450px)
+  {
+    .card-wrapper{
+        flex-direction: column;
+    }
+    .person-img{
+        width: 90%;
+      
+      }
+   
+      .person-spch{
+        width: 100%;
+       
+      }
+    
   }

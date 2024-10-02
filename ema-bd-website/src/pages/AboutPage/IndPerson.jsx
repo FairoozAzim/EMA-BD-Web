@@ -13,7 +13,7 @@ const IndPerson = () => {
     }
     
     return (    
-        <div className=" mt keynote">
+        <div className="keynote">
              <h2 className="text-center">Keynote from {name}</h2>
             <div className='ind-person-container d-flex'>
             <div className="image-container">

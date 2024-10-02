@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const EUD_details = () => {
     return (
         <div>
-        <div className="mt keynote-ch">
+        <div className="mt-10 keynote-ch">
            <h1 className=''>European Union Delegation Ambassadors</h1>
            {
                EudData.map((item, index)=> (
