@@ -84,7 +84,9 @@
     background-color: rgba(0, 0, 0, 0.6);
     transition: all 0.5s ease-in;
   }
-  
+  .prev{
+    left: 0;
+  }
   .next {
     right: 0;
     border-radius: 5px 0px 0px 5px;
@@ -128,4 +130,22 @@
   
   .play-pause {
     color: black;
+  }
+
+  @media screen and (max-width: 700px)
+  {
+    .slides-content{
+      flex-direction: column-reverse;
+    }
+    .slide-text{
+      width: 100%;
+      text-align: left;
+    }
+    .slide-image-container{
+      width: 90%;
+    }
+    
+    .all-dots {
+      top: 90%
+    }
   }

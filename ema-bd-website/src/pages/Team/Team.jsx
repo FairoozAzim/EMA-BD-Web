@@ -44,7 +44,7 @@ const Team = () => {
   };
 
   return (
-    <div className="mt">
+    <div className="mt-10">
       <h1 className="section-header text-center">Our Team ({selectedYear})</h1>
 
       {/* Dropdown for selecting the year */}

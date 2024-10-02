@@ -1,10 +1,9 @@
 .banner-wrapper{
     background-color: var(--navy-blue-color);
-    height: 50vh;
-    margin-top: 110px;
+    height: 60vh;
     padding: 5%;
     position: relative;
-    overflow: hidden;
+    /* overflow: hidden; */
    
 }
 
@@ -13,9 +12,17 @@
     border-radius: 5px 0px 0px 5px;
     position: relative;
     width: 80%;
-    /* height: 100%; */
+    height: 100%;
     margin: 0 auto;
     z-index: 10;
+    border-radius: 5px;
+
+}
+.slider{
+    height: 100%;
+}
+.slider img{
+    height: 100%;
 }
 .overlay{
     position: absolute;
@@ -46,7 +53,7 @@
 .banner-text{
     width: 70%;
     position: absolute;
-    top: 35%;
+    top: 15%;
     left: 15%;
     transform: translateX(-100%);
     -webkit-transform: translateX(-100%);
@@ -129,6 +136,8 @@
     
 }
 @media screen and (max-width: 768px) {
+    
+    
     .contact-bar{
         height: 20%;
         width: 100%;
@@ -171,7 +180,6 @@
     .socials a{
         width: 30px;
         height: 30px;
-       
         border-radius: 50%;
         cursor: pointer;
     

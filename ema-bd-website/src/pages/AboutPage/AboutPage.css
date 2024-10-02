@@ -41,6 +41,9 @@
     list-style: none;
     margin: 0 auto;
     width: 80%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+
 
 }
 .mission-list li{
@@ -49,7 +52,7 @@
     margin: 10px 10px;
     color: white; /* Adjust color to fit your design */
     border-radius: 5px;
-    width: 20%;
+    width: 80%;
     font-size: 15px;
     text-align: center;
     box-shadow: var(--shadow);
@@ -127,3 +130,26 @@
     border-radius: 5px;
     box-shadow: var(--shadow);
  }
+
+ 
+ @media screen and (max-width: 978px)
+  {
+    .mission-list{
+    
+        grid-template-columns: repeat(2, 1fr);
+    
+    
+    }
+    
+  }
+ 
+ @media screen and (max-width: 678px)
+  {
+    .mission-list{
+    
+        grid-template-columns: repeat(1, 1fr);
+    
+    
+    }
+
+  }

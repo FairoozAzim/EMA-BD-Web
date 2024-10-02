@@ -71,6 +71,7 @@
     text-align: justify; 
     color: rgb(76, 76, 76); 
     line-height: 1.6; 
+    text-wrap: wrap;
 } 
  
 .event-desc pre { 

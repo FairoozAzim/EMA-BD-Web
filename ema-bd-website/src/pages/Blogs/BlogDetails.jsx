@@ -24,7 +24,7 @@ const BlogDetails = () => {
     };
 
     return (
-        <div className="mt-10 blog-details-container">
+        <div className="blog-details-container">
             <h1>{blogData.title}</h1>
             <div className="blog-author">
                 <p>By {blogData.author}  .  <span>{blogData.date}</span></p> 

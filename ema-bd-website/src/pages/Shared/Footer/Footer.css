@@ -48,3 +48,8 @@ footer {
     text-decoration: underline;
   }
   
+  @media screen and (max-width: 978px){
+    .footer-content{
+      flex-direction: column;
+    }
+  }

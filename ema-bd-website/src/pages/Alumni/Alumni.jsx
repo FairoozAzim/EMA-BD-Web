@@ -102,7 +102,7 @@ const Alumni = () => {
   console.log(sessions);
 
   return (
-    <div className='mt alumnus-grid'>
+    <div className='mt-10 alumnus-grid'>
       <h1 className='section-header text-center'>Student and Alumni</h1>
       {/* session selection */}
     <div className='session-select'>

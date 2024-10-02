@@ -22,3 +22,6 @@
     background-color: var(--orange-color);
     color: white;
 }
+.events-container{
+    padding: 5%;
+}

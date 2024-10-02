@@ -6,6 +6,7 @@ body{
   font-weight: 400;
   font-style: normal;
   color: #3b3b3b;
+  padding-top: 100px;  /* Keeps a consistent 100px gap below the header */
 }
 h1,h2,h3,h4{
   font-family: 'Montserrat', sans-serif;
