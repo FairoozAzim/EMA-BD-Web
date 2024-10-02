@@ -31,7 +31,7 @@ const Header = () => {
               <Link to='about'>About Us </Link>
               <div className='dropdown'>
                 <Link to='/keynoteEud'> Speech from EUD </Link>
-                <Link to='/keynoteCR'> Speech from EMA-BD CR</Link>
+                <Link to='/keynoteCR'> Speech from EMA CR</Link>
               </div>
             </li>
             <li onClick={removeActive} className="nav-item montserrat"><Link to='team'>Our Team</Link></li>
