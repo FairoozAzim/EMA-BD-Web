@@ -58,6 +58,13 @@ async function run() {
     const blogCollection = db.collection("Blogs");
     const alumniCollection = db.collection("StudentsAlumni");
     const commentCollection = db.collection("Comments")
+
+    // Update documents where "year" field does not exist
+    const filter = { year: { $exists: false } };
+    const update = { $set: { year: "2025" } };    
+    const result = await memberCollection.updateMany(filter, update);    
+    console.log(`${result.matchedCount} documents matched the filter`);
+    console.log(`${result.modifiedCount} documents were updated`);
     
   
     // ======================Login Endpoint =======================================
