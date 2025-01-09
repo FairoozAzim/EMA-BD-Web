@@ -51,7 +51,7 @@ const Events = () => {
             {/* Conditional rendering based on the active tab */}
             {activeTab === 'upcoming' ? (
                 <div className='events-container'>
-                    <h2 className='mt-10 text-center'>Events Coming Up!</h2>
+                    <h2 className='text-center'>Events Coming Up!</h2>
                     {upcomingEvents.length > 0 ? (
                         upcomingEvents.map(event => (
                             <EventCard
