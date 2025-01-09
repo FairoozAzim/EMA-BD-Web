@@ -8,8 +8,8 @@ const Team = () => {
  
 
   // Extract years from the team data
-  const years = [...new Set(team.map(member => member.year))]; // Get unique years
-  const [selectedYear, setSelectedYear] = useState("2024"); // Default to 2024 or current year
+  const years = [...new Set(team.map(member => member.year))].sort((a, b) => b - a); // Get unique years
+  const [selectedYear, setSelectedYear] = useState("2025"); // Default to 2024 or current year
 
   const teamArray = [];
   const leadArray = [];
