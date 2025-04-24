@@ -2,14 +2,13 @@
 #############"" Back END ""##############
 =================================================
 npm init -y
-
 npm install express cors
-
+npm install express mongoose mongodb
 npm install -g nodemon
 
 nodemon index.js 
 
-npm install express mongoose mongodb
+
 
 ==============================================
 #############"" Front END ""##############
