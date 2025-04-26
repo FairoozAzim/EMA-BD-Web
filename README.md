@@ -5,7 +5,7 @@ npm init -y
 
 npm install express cors
 
-npm install express mongoose mongodb
+npm install express mongoose mongodb bcrypt
 
 npm install -g nodemon
 
