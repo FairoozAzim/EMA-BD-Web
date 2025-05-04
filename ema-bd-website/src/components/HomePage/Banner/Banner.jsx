@@ -45,9 +45,9 @@ const Banner = () => {
             </div>
             <div className='contact-bar'>
                 <div className='socials'>
-                    <a href='https://www.facebook.com/ErasmusMundusAssociation.Bangladesh'><FaFacebookF /></a>
+                    <a href='https://www.facebook.com/ErasmusMundusBangladesh'><FaFacebookF /></a>
                     <a href='https://www.linkedin.com/company/ema-bd/'><FaLinkedinIn /></a>
-                    <a href='https://www.instagram.com/bd_ema/'><FaInstagram /></a>
+                    <a href='https://www.instagram.com/erasmus_mundus_bangladesh/'><FaInstagram /></a>
                 </div>
             </div>
         </div>
