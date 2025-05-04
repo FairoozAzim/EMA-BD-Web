@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube} from 'react-icons/fa';
+import { FaXTwitter } from 'react-icons/fa6';
 import Image1 from '../../../Assets/images/Slider2.jpg';
 import Image2 from '../../../Assets/images/Slider1.jpg';
 import Image3 from '../../../Assets/images/slider4.jpg';
@@ -48,6 +49,8 @@ const Banner = () => {
                     <a href='https://www.facebook.com/ErasmusMundusBangladesh'><FaFacebookF /></a>
                     <a href='https://www.linkedin.com/company/ema-bd/'><FaLinkedinIn /></a>
                     <a href='https://www.instagram.com/erasmus_mundus_bangladesh/'><FaInstagram /></a>
+                    <a href='https://www.youtube.com/@erasmus_mundus_bangladesh'><FaYoutube /></a>
+                    <a href='https://x.com/erasmus_BD'><FaXTwitter /></a>
                 </div>
             </div>
         </div>
