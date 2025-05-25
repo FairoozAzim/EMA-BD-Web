@@ -14,6 +14,7 @@ import Blogs from "../pages/Blogs/Blogs";
 import Dashboard from "../Layout/Dashboard/Dashboard";
 import EventManagement from "../components/AdminComponents/EventManagement/EventManagement";
 import BlogManagement from "../components/AdminComponents/BlogManagement/BlogManagement";
+import CreateBlog from "../components/AdminComponents/BlogManagement/createBlog";
 import AdminHome from "../components/AdminComponents/AdminHome/AdminHome";
 import Faq from "../pages/FAQ/Faq";
 import Login from "../pages/Login/Login";
@@ -125,6 +126,10 @@ import EUD_details from "../pages/AboutPage/EUD_details";
           element: <EUD_details></EUD_details>
 
         },
+        {
+          path: "/createBlog",
+          element: <CreateBlog></CreateBlog>
+        }
 
       ],
     

@@ -16,7 +16,7 @@ const EUD_details = () => {
                   <div className='person-spch'>
                    <h3>{item.name}</h3>
                    <p>Active Period: {item.year}</p>
-                   <h4 className="about-highlight">{item.highlight}</h4>
+                   <h4 className="about-highlight mb-2">{item.highlight}</h4>
                    <p className='about-details'>
                                {item.keynote.slice(0, 400).split('\n').map((line, i) => (
                                    <React.Fragment key={i}>
