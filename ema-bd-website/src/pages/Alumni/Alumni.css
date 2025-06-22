@@ -1,37 +1,46 @@
-.alumnus-grid{
-    width: 80%;
+.alumni-container{
+    width: 100%;
     padding: 10px;
     margin: 0 auto;
     color: rgb(121, 121, 121);
     margin: 0 auto;
 }
-/* 
-.team-grid{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-} */
-.session-dropdown {
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .session-dropdown label {
-    margin-right: 10px;
-  }
-  
-  .session-dropdown select {
-    padding: 5px;
-    font-size: 16px;
-  }
+.filter-panel{
+ width: 20%;
+}
 
-  .alumnus-grid select{
-    border: 1px solid rgb(174, 174, 174);
+ .main-panel{
+  width: 80%;
+}
+.filter-panel{
+    background-color: white;
     padding: 10px;
     border-radius: 5px;
-    color: rgb(42, 41, 41);
-    font-family: 'Poppins', sans-serif;
-    margin: 0 auto;
-  }
-  .session-select{
-    text-align: center;
-  }
+}
+.filter-panel select{
+  border: 1px solid rgb(174, 174, 174);
+  padding: 10px;
+  border-radius: 5px;
+  color: rgb(42, 41, 41);
+  font-family: 'Poppins', sans-serif;
+  margin: 10px auto;
+  width: 100%;
+  font-size: 14px;
+
+
+}
+.session-select{
+  text-align: center;
+}
+
+.clear-button {
+  border-radius: 4px;
+  cursor: pointer;
+  color: black;
+  border: 1px solid grey;
+  padding: 5px;
+
+}
+.filter-div{
+  justify-content: space-between;
+}
