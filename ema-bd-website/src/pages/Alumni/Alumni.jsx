@@ -7,7 +7,7 @@ import Pagination from '../../components/Pagination/Pagination';
 
 const Alumni = () => {
   const alumni = useLoaderData();
-  console.log("alumni", alumni);
+  // console.log("alumni", alumni);
   //Session , Program Name, Bangladesh University, EMJM universities, EMJM Countries.
   alumni.sort((a, b) => a.Name.localeCompare(b.Name));
 

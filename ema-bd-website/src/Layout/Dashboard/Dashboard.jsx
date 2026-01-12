@@ -20,7 +20,7 @@ const Dashboard = () => {
    const navigationLinks = [
       { to: '/dashboard/manageEvents', text: 'Events', Icon: MdEvent, roles: ['SuperAdmin', 'Monitor', 'EventManager'] },
       { to: '/dashboard/manageBlogs', text: 'Blogs', Icon: GrNotes, roles: ['SuperAdmin', 'Monitor'] },
-      { to: '/dashboard/manageAlumni', text: 'Students and Alumni', Icon: PiStudentFill, roles: ['SuperAdmin', 'Monitor', 'StudentManager'] },
+      { to: '/dashboard/manageAlumni', text: 'Students', Icon: PiStudentFill, roles: ['SuperAdmin', 'Monitor', 'StudentManager'] },
       { to: '/dashboard/manageMembers', text: 'Members', Icon:RiTeamLine, roles: ['SuperAdmin', 'Monitor'] },
       
     ];
@@ -29,7 +29,7 @@ const Dashboard = () => {
     const hasAllowedRole = (allowedRoles) => {
       return role.some(r => allowedRoles.includes(r));
     };
-
+ 
     //to toggle navbar in mobile view
    const toggleMobileNav = () => {
    
@@ -56,8 +56,10 @@ const Dashboard = () => {
               <ul className="side-menu">
                
                  <li onClick={removeActive} className="menu-item"><NavLink to ='/dashboard/adminHome'>
-                 <MdDashboard className="icon" />
-                  <span>Dashboard</span>
+                 <div className="item-div">
+                  <MdDashboard className="icon" />
+                  <p>Dashboard</p>
+                 </div>
                  </NavLink>
                  </li>
                 {navigationLinks.map((link, index) => {
@@ -66,8 +68,10 @@ const Dashboard = () => {
                          return (
                            <li key={index} onClick={removeActive} className="menu-item">
                              <NavLink to={link.to}>
-                               <link.Icon className="icon"/>
-                               <span>{link.text}</span>
+                               <div className="item-div">
+                                <link.Icon className="icon"/>
+                               <p>{link.text}</p>
+                               </div>
                              </NavLink>
                            </li>
                          );
@@ -77,14 +81,18 @@ const Dashboard = () => {
                   })}
                
                  <li onClick={() => handleLogout()} className="menu-item"><NavLink to = '/logout'>
-                 <AiOutlineLogout className="icon"/>
-                   <span> Logout </span>
+                 <div className="item-div">
+                   <AiOutlineLogout className="icon"/>
+                   <p> Logout </p>
+                 </div>
                   </NavLink>
                  </li>
                  <hr className="divider"></hr>
                  <li onClick={removeActive} className="mt menu-item"><NavLink to='/'>
-                 <FaHome className="icon"/>
-                   <span>Home Page</span> 
+                  <div className="item-div">
+                  <FaHome className="icon"/>
+                   <p>Home Page</p> 
+                  </div>
                     </NavLink>
                  </li>
               </ul>

@@ -20,8 +20,8 @@ const Profile_Details = () => {
         
         <div className="mt">
            <div className="profile-details-container">
-      <div className="d-flex profile-details">
-      <div className="prof-details-img">
+           <div className="d-flex profile-details">
+        <div className="prof-details-img">
           {Image ? (
                <img src={imageUrl} alt={Name}></img>
               ) : (
@@ -34,8 +34,8 @@ const Profile_Details = () => {
             <p><TbCalendarClock className="icon"/> Session: {Session}</p>
             <p><FaUniversity className="icon"/> Institutes: {UniName}</p>
            </div>
-      </div>
-      <hr className="header-divider"></hr>
+       </div>
+       <hr className="header-divider"></hr>
             <div className="profile-about d-flex">
             <div className="about-text">
             <h3>About Me</h3>

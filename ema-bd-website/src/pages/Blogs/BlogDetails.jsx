@@ -25,15 +25,16 @@ const BlogDetails = () => {
 
     return (
         <div className="blog-details-container">
-            <h1>{blogData.title}</h1>
+            <h1 className="blog-title">{blogData.title}</h1>
             <div className="blog-author">
                 <p>By {blogData.author}  .  <span>{blogData.date}</span></p> 
             </div>
+            <hr className="divider-blog"></hr>
             <div className="blog-banner-container">
                 <img className='blog-banner' src={`http://localhost:5000/uploads/${blogData.blogImage}`} alt="Blog banner" />
             </div>
             <pre>{blogData.text}</pre>
-            <hr/>
+            <hr className="mt-10 divider-blog"/>
             <div className="blog-interactions d-flex">
                 <h3 className="mt-10">Have Questions? Leave us a comment! </h3>
             </div>

@@ -15,7 +15,8 @@ const AlumniManagement = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentAlumni = alumni.slice(indexOfFirstItem, indexOfLastItem);
-
+  
+  console.log(currentAlumni)
   // Change page
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -24,13 +25,13 @@ const AlumniManagement = () => {
         <div className='mt alumnus-grid'>
         <h1 className='section-header text-center'>Year 2022</h1>
         <div className='mt-5 team-grid'>
-          {currentAlumni.map((member, index) => (
-            <Profile
-              key={index}
-              name={member.Name} // Assuming your alumni data has 'name'
-              position={member.Session} // Assuming your alumni data has 'subject'
-            />
-          ))}
+           {currentAlumni.map((alumni, index) => (
+          <Profile
+            key={index}
+            designation="alumni"
+            data={alumni}
+          />
+        ))}
         </div>
         {/* Pagination controls */}
         <Pagination

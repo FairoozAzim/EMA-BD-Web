@@ -9,14 +9,14 @@ const Team = () => {
 
   // Extract years from the team data
   const years = [...new Set(team.map(member => member.year))].sort((a, b) => b - a); // Get unique years
-  const [selectedYear, setSelectedYear] = useState("2025"); // Default to 2024 or current year
+  const [selectedYear, setSelectedYear] = useState("2026"); // Default to 2024 or current year
 
   const teamArray = [];
   const leadArray = [];
 
   // Filter team based on the selected year
   const filteredTeam = team.filter(member => member.year === selectedYear);
-
+  console.log(filteredTeam)
   // Iterate over the filtered team and separate the members
   filteredTeam.forEach(member => {
     if (member.position === "Country Representative" || member.position === "Deputy Country Representative") {
@@ -25,7 +25,7 @@ const Team = () => {
       teamArray.push(member);
     }
   });
-
+  console.log(leadArray)
   // Sort the leaders and team members
   leadArray.sort((a) => a.position === "Country Representative" ? -1 : 1);
   teamArray.sort((a, b) => {

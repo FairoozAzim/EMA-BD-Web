@@ -63,8 +63,6 @@ const date = today.toDateString();
   })
  }
 
-  
-
     return (
         <div>
             <h2 className="text-center">Manage Blogs</h2>
