@@ -59,7 +59,16 @@ async function run() {
     const alumniCollection = db.collection("StudentsAlumni");
     const commentCollection = db.collection("Comments")
 
-      
+//     memberCollection.updateMany(
+//     {
+//     Position: { $exists: true },
+//     position: { $exists: false }
+//   },
+//   {
+//     $rename: { "Position": "position" }
+//   }
+// )
+
     // ======================Login Endpoint =======================================
     app.post("/login", (req, res) => {
          // check if email exists
@@ -322,9 +331,9 @@ async function run() {
     res.send(memberList);
   })
  //======================Get Member by ID
-  app.get('/profile/:profileId/:desgination',async (req,res) => {
+  app.get('/profile/:profileId/:designation',async (req,res) => {
     const profileId = req.params.profileId;
-    const desg = req.params.desgination;
+    const desg = req.params.designation;
     const oId = new ObjectId(profileId);
     const profileCollection = (desg === 'team') ? memberCollection : alumniCollection;
 
