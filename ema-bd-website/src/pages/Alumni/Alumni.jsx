@@ -7,7 +7,7 @@ import Pagination from '../../components/Pagination/Pagination';
 
 const Alumni = () => {
   const alumni = useLoaderData();
-  // console.log("alumni", alumni);
+  console.log("alumni", alumni);
   //Session , Program Name, Bangladesh University, EMJM universities, EMJM Countries.
   alumni.sort((a, b) => a.Name.localeCompare(b.Name));
 
@@ -73,7 +73,7 @@ const Alumni = () => {
     .filter(u => u); // remove empty strings
 }
   // Get unique sessions
-  const sessions = ['2020-2022','2021-2023', '2022-2024', '2023-2025', '2024-2026'];
+  const sessions = ['2020-2022','2021-2023', '2022-2024', '2023-2025', '2024-2026', '2025-2027'];
   const programs = [...new Set(alumni.map(a => a.ProgramName))];
   // const bdUniversities = [...new Set(alumni.map(a => extractBangladeshUniversity(a.About)))];
   const emjmUniversities = [...new Set(alumni.flatMap(a => extractUniversities(a.UniName)))];

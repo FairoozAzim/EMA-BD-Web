@@ -6,7 +6,10 @@ function Footer() {
     <footer className='mt'>
       <div className="footer-content">
         <Newsletter></Newsletter>
-        <p className='mt rights'>© EMA BD 2024. All rights reserved.</p>
+        <div className='mt rights'>
+        <p>© EMA BD 2026. All rights reserved. </p>
+        <p>Created by <Link to='/developers' className='developers'>EMA BD IT Team</Link></p>
+        </div>
         <ul className="footer-links">
           <li><Link to='/terms'>Terms of Service</Link></li>
           <li><Link to="/privacy">Privacy Policy</Link></li>

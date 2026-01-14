@@ -28,6 +28,7 @@ import Profile_Details from "../components/Profile/Profile_Details";
 import IndPerson from "../pages/AboutPage/IndPerson";
 import CR_details from "../pages/AboutPage/CR_details";
 import EUD_details from "../pages/AboutPage/EUD_details";
+import Developers from "../Developers/developers";
 // import EventDetails from "../components/EventsPage/EventDetails";
 
 
@@ -109,6 +110,11 @@ import EUD_details from "../pages/AboutPage/EUD_details";
         { 
           path: "/privacy",
           element:  <PrivacyPolicy></PrivacyPolicy>
+
+        },
+        { 
+          path: "/developers",
+          element:  <Developers></Developers>
 
         },
         { 

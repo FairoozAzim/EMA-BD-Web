@@ -22,7 +22,10 @@ footer {
   .footer-content .rights{
     font-size: 15px;
   }
-  
+  .footer-content .developers{
+    text-decoration: underline;
+  }
+
   .footer-links {
     list-style: none;
     padding: 0;
