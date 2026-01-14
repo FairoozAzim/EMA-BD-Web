@@ -59,16 +59,14 @@ async function run() {
     const alumniCollection = db.collection("StudentsAlumni");
     const commentCollection = db.collection("Comments")
 
-//     memberCollection.updateMany(
-//     {
-//     Position: { $exists: true },
-//     position: { $exists: false }
-//   },
+//   alumniCollection.updateMany(
+//   { Session: "2025-2027" },
 //   {
-//     $rename: { "Position": "position" }
+//     $rename: {
+//       "Name ": "Name"
+//     }
 //   }
 // )
-
     // ======================Login Endpoint =======================================
     app.post("/login", (req, res) => {
          // check if email exists
