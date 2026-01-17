@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config()
@@ -58,15 +59,20 @@ async function run() {
     const blogCollection = db.collection("Blogs");
     const alumniCollection = db.collection("StudentsAlumni");
     const commentCollection = db.collection("Comments")
+   // Load JSON
+    // const mappings = JSON.parse(fs.readFileSync('abc.json', "utf8"));
 
-//   alumniCollection.updateMany(
-//   { Session: "2025-2027" },
-//   {
-//     $rename: {
-//       "Name ": "Name"
-//     }
-//   }
-// )
+    // // Prepare bulk operations
+    // const ops = mappings.map(m => ({
+    //   updateOne: {
+    //     filter: { Email: m.Email },
+    //     update: { $set: { ID: m.ID } }
+    //   }
+    // }));
+
+    // const result = await alumniCollection.bulkWrite(ops);
+    // console.log("Matched:", result.matchedCount);
+    // console.log("Modified:", result.modifiedCount);
     // ======================Login Endpoint =======================================
     app.post("/login", (req, res) => {
          // check if email exists
