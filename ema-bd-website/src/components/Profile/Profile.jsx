@@ -32,7 +32,7 @@ const Profile = ({designation, data}) => {
    else if (designation === 'alumni')
       {
          const {ID,_id, Name, ProgramName,LinkedIn,Image, Session } = data
-         console.log(ID, Image);
+         console.log(ID, Session);
          const demoImageUrl = `http://localhost:5000/uploads/avatar.jpg`;
          const url =  `http://localhost:5000/uploads/${ID}.jpg`; 
         console.log(url);
