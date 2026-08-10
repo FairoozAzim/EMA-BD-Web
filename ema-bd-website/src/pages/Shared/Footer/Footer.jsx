@@ -3,7 +3,7 @@ import './Footer.css';
 import Newsletter from '../../../components/HomePage/Newsletter/Newsletter';
 function Footer() {
   return (
-    <footer className='mt'>
+    <footer className='mt-0'>
       <div className="footer-content">
         <Newsletter></Newsletter>
         <div className='mt rights'>

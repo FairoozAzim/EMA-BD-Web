@@ -1,6 +1,4 @@
-import {
-    createBrowserRouter
-  } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Main from "../Layout/Main";
 import Home from "../pages/Home/Home";
 import Team from "../pages/Team/Team";
@@ -31,151 +29,145 @@ import EUD_details from "../pages/AboutPage/EUD_details";
 import Developers from "../Developers/developers";
 // import EventDetails from "../components/EventsPage/EventDetails";
 
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Main></Main>,
+    errorElement: <ErrorPage></ErrorPage>,
+    children: [
+      {
+        path: "/",
+        element: <Home></Home>,
+      },
+      {
+        path: "/about",
+        element: <AboutPage></AboutPage>,
+      },
+      {
+        path: "/team",
+        element: <Team></Team>,
+      },
+      {
+        path: "/alumni",
+        element: <Alumni></Alumni>,
+      },
+      {
+        path: "/profile/:profileId/:designation",
+        element: <Profile_Details></Profile_Details>,
+        loader: ({ params }) =>
+          fetch(
+            `http://localhost:5001/profile/${params.profileId}/${params.designation}`,
+          ),
+      },
+      {
+        path: "/contact",
+        element: <Contact></Contact>,
+      },
+      {
+        path: "/blogs",
+        element: <Blogs></Blogs>,
+        loader: () => fetch("http://localhost:5001/blogs"),
+      },
+      {
+        path: "/blogs/:blogId",
+        element: <BlogDetails></BlogDetails>,
+        loader: ({ params }) =>
+          fetch(`http://localhost:5001/blogs/${params.blogId}`),
+      },
+      {
+        path: "/events",
+        element: <Events></Events>,
+        loader: () => fetch("http://localhost:5001/events"),
+      },
+      {
+        path: "/events/:eventId",
+        element: <EventDetails></EventDetails>,
+        loader: ({ params }) =>
+          fetch(`http://localhost:5001/events/${params.eventId}`),
+      },
+      {
+        path: "/faq",
+        element: <Faq></Faq>,
+      },
 
-  export const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Main></Main>,
-      errorElement: <ErrorPage></ErrorPage>,
-      children: [
-        {
-            path: "/",
-            element: <Home></Home>
-        },
-        {
-            path: "/about",
-            element: <AboutPage></AboutPage>
-        },
-        {
-          path: "/team",
-          element: <Team></Team>,
-          loader: () => fetch('http://localhost:5000/members')
-        },
-        {
-          path: "/alumni",
-          element: <Alumni></Alumni>,
-          loader: () => fetch('http://localhost:5000/alumni')
-        },
-        {
-          path: "/profile/:profileId/:designation",
-          element: <Profile_Details></Profile_Details>,
-          loader: ({params}) => fetch(`http://localhost:5000/profile/${params.profileId}/${params.designation}`)
-        },      
-        {
-          path: "/contact",
-          element: <Contact></Contact>
-        },       
-        {
-          path: "/blogs",
-          element: <Blogs></Blogs>,
-          loader: () => fetch('http://localhost:5000/blogs')
-        },       
-        {
-          path: "/blogs/:blogId",
-          element: <BlogDetails></BlogDetails>,
-          loader: ({params}) => fetch(`http://localhost:5000/blogs/${params.blogId}`)
-        },       
-        {
-          path: "/events",
-          element: <Events></Events>,
-          loader: () => fetch('http://localhost:5000/events')
-        },   
-        {
-          path: "/events/:eventId",
-          element: <EventDetails></EventDetails>,
-          loader: ({params}) => fetch(`http://localhost:5000/events/${params.eventId}`)
-        } ,
-        {
-          path: "/faq",
-          element: <Faq></Faq>
-        } ,
+      {
+        path: "/login",
+        element: <Login></Login>,
+      },
 
-        { 
-          path: "/login",
-          element: <Login></Login>
+      {
+        path: "/logout",
+        element: <Login></Login>,
+      },
 
-        },
-
-        { 
-          path: "/logout",
-          element: <Login></Login>
-
-        },
-
-        { 
-          path: "/terms",
-          element: <TermsCOnditions/>
-
-        },
-        { 
-          path: "/privacy",
-          element:  <PrivacyPolicy></PrivacyPolicy>
-
-        },
-        { 
-          path: "/developers",
-          element:  <Developers></Developers>
-
-        },
-        { 
-          path: "/keynote/:name",
-          element:  <IndPerson></IndPerson>
-
-        },
-        { 
-          path: "/keynoteCR",
-          element: <CR_details></CR_details>
-
-        },
-        { 
-          path: "/keynoteEud",
-          element: <EUD_details></EUD_details>
-
-        },
-        {
-          path: "/createBlog",
-          element: <CreateBlog></CreateBlog>
-        }
-
-      ],
-    
-    },
-    {
-      path: '/dashboard',
-      element: <ProtectedRoute> <Dashboard></Dashboard></ProtectedRoute>,
-      children: [
-
-        {
-          path: '/dashboard',
-          element: <AdminHome></AdminHome>
-        },
-        {
-          path: '/dashboard/adminHome',
-          element: <AdminHome></AdminHome>
-        },
-        {
-          path: 'manageEvents',
-          element: <EventManagement></EventManagement>
-        },
-        {
-          path: 'manageBlogs',
-          element: <BlogManagement></BlogManagement>
-        },
-        {
-          path: 'manageMembers',
-          element: <MemberManagement></MemberManagement>
-        },
-        {
-          path: 'manageAlumni',
-          element: <AlumniManagement></AlumniManagement>,
-          loader: () => fetch('http://localhost:5000/alumni')
-        },
-        {
-          path: 'logout',
-          element: <AdminHome></AdminHome>
-        },
-
-      ]
-    }
-   
-  ]);
+      {
+        path: "/terms",
+        element: <TermsCOnditions />,
+      },
+      {
+        path: "/privacy",
+        element: <PrivacyPolicy></PrivacyPolicy>,
+      },
+      {
+        path: "/developers",
+        element: <Developers></Developers>,
+      },
+      {
+        path: "/keynote/:name",
+        element: <IndPerson></IndPerson>,
+      },
+      {
+        path: "/keynoteCR",
+        element: <CR_details></CR_details>,
+      },
+      {
+        path: "/keynoteEud",
+        element: <EUD_details></EUD_details>,
+      },
+      {
+        path: "/createBlog",
+        element: <CreateBlog></CreateBlog>,
+      },
+    ],
+  },
+  {
+    path: "/dashboard",
+    element: (
+      <ProtectedRoute>
+        {" "}
+        <Dashboard></Dashboard>
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: "/dashboard",
+        element: <AdminHome></AdminHome>,
+      },
+      {
+        path: "/dashboard/adminHome",
+        element: <AdminHome></AdminHome>,
+      },
+      {
+        path: "manageEvents",
+        element: <EventManagement></EventManagement>,
+      },
+      {
+        path: "manageBlogs",
+        element: <BlogManagement></BlogManagement>,
+      },
+      {
+        path: "manageMembers",
+        element: <MemberManagement></MemberManagement>,
+      },
+      {
+        path: "manageAlumni",
+        element: <AlumniManagement></AlumniManagement>,
+        loader: () => fetch("http://localhost:5001/alumni"),
+      },
+      {
+        path: "logout",
+        element: <AdminHome></AdminHome>,
+      },
+    ],
+  },
+]);
