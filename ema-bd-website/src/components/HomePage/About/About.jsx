@@ -67,11 +67,11 @@ const About = () => {
               </span>
             </div>
 
-            <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            <h2 className="mt-5 text-3xl font-semibold tracking-tight text-[#0F2A5F] md:text-5xl">
               About Us
             </h2>
 
-            <p className="mt-6 text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+            <p className="mx-auto text-xs md:text-base mt-4 max-w-2xl text-slate-600">
               Erasmus Mundus Association Bangladesh is a community of Erasmus
               Mundus students and alumni working together to promote higher
               education, knowledge sharing, and meaningful connections.

@@ -74,11 +74,11 @@ const HomeTeam = () => {
             <span className="h-px w-10 bg-[#0F2A5F]" />
           </div>
 
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+          <h2 className="mt-5 text-3xl font-semibold tracking-tight text-[#0F2A5F] md:text-5xl">
             Meet Our Team
           </h2>
 
-          <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+          <p className="mx-auto text-xs md:text-base mt-4 max-w-2xl text-slate-600">
             Meet the passionate volunteers working together to support Erasmus
             Mundus students and alumni and build a stronger international
             community.
@@ -107,7 +107,7 @@ const HomeTeam = () => {
           <div className="mt-12 text-center">
             <Link
               to="/team"
-              className="group inline-flex items-center gap-2 rounded-lg bg-[#0F2A5F] px-3 md:px-6 py-3.5 text-xs md:text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b214c] hover:shadow-lg"
+              className="group inline-flex items-center gap-2 rounded-lg bg-[#0F2A5F] px-3 md:px-6 py-2 md:py-3.5 text-xs md:text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b214c] hover:shadow-lg"
             >
               Meet Our Full Team
               <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
