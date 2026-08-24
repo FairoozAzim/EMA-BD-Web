@@ -1,70 +1,83 @@
 @import "tailwindcss";
-body{
+body {
   background-color: #162b560c;
   margin: 0;
-  overflow-x: hidden ;
-  font-family: "Poppins", sans-serif; 
+  overflow-x: hidden;
+  font-family: "Poppins", sans-serif;
   font-weight: 400;
   font-style: normal;
   color: #3b3b3b;
-  padding-top: 100px;  /* Keeps a consistent 100px gap below the header */
 }
-h1,h2,h3,h4{
-  font-family: 'Montserrat', sans-serif;
+h1,
+h2,
+h3,
+h4 {
+  font-family: "Montserrat", sans-serif;
 }
-:root{
-  --navy-blue-color : #0c1e43;
-  --light-blue-color: #E9F6FF;
+:root {
+  --navy-blue-color: #0c1e43;
+  --light-blue-color: #e9f6ff;
   --orange-color: #c23911;
   --shadow: rgba(149, 157, 165, 0.7) 0px 8px 24px;
 }
 /* ============Shared styles============  */
-.montserrat{
-  font-family: "Montserrat", sans-serif
+/* Header.css */
+
+/* Target active NavLinks */
+.nav-item a.active {
+  color: #0F2A5F; 
+  font-weight: 600;
 }
-.section-header{
+
+/* Optional: Handle dropdown active links */
+.dropdown a.active {
+  color: #0F2A5F;
+}
+.montserrat {
+  font-family: "Montserrat", sans-serif;
+}
+.section-header {
   font-size: 3em;
   color: var(--navy-blue-color);
   text-align: center;
 }
-.mt{
+.mt {
   margin-top: 12%;
 }
 
-.mt-10{
+.mt-10 {
   margin-top: 5%;
 }
-.mb-2{
+.mb-2 {
   margin-bottom: 2% b;
 }
-.mt-5{
+.mt-5 {
   margin-top: 5%;
 }
-.d-flex{
+.d-flex {
   display: flex;
 }
-.btn-red{
+.btn-red {
   background-color: #c23911;
   border: none;
   border-radius: 24px;
   width: auto;
   padding: 10px 20px;
-  color: #fff;   
+  color: #fff;
   cursor: pointer;
 }
 
-.link-text{
+.link-text {
   text-decoration: none;
   color: #000;
   font-weight: bold;
   margin-top: 10px;
 }
-.text-center{
+.text-center {
   text-align: center;
 }
-@media screen and (max-width: 928px)
-{
-  .section-header{
+@media screen and (max-width: 928px) {
+  .section-header {
     font-size: 1.5rem;
   }
 }

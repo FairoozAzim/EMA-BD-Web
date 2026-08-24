@@ -3,6 +3,7 @@ import Profile from "../../components/Profile/Profile";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import TeamSkeleton from "../../components/ui/TeamSkeleton";
+import ErrorPage from "../Error/Error";
 
 const Team = () => {
   const currentYear = new Date().getFullYear().toString();
@@ -75,7 +76,7 @@ const Team = () => {
   }
 
   if (error) {
-    return <div className="text-center py-5">Failed to load team members.</div>;
+    return <ErrorPage error={error.message} />;
   }
 
   return (

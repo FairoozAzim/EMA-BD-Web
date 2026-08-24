@@ -5,6 +5,7 @@ import Profile from "../../components/Profile/Profile";
 import Pagination from "../../components/Pagination/Pagination";
 import { FiSearch } from "react-icons/fi";
 import AlumniSkeleton from "../../components/ui/AlumniSkeleton";
+import ErrorPage from "../Error/Error";
 
 // Get unique sessions
 const sessions = [
@@ -145,11 +146,7 @@ const Alumni = () => {
   }
 
   if (error) {
-    return (
-      <div className="py-20 text-center text-red-500">
-        Failed to load alumni.
-      </div>
-    );
+    return <ErrorPage error={error.message} />;
   }
 
   return (
