@@ -63,15 +63,20 @@ const Profile_Details = () => {
 
                 <div>
                   <div className="mt-0 md:mt-8 border-t border-slate-200 pt-6">
-                    <div className="flex items-center gap-3 text-slate-600">
-                      <FiMail className="text-blue-700" />
-                      <a
-                        href={`mailto:${email}`}
-                        className="hover:text-blue-700"
-                      >
-                        {email}
-                      </a>
-                    </div>
+                <div className="rounded-2xl shadow-md p-6">
+                  <h3 className="mb-5 text-xl font-semibold">Contact</h3>
+
+                  <div className="flex items-center gap-3 text-slate-600">
+                    <FiMail className="text-blue-700" />
+
+                    <a
+                      href={`mailto:${email}`}
+                      className="break-all hover:text-blue-700"
+                    >
+                      {email}
+                    </a>
+                  </div>
+                </div>
                   </div>
                 </div>
               </div>

@@ -94,22 +94,27 @@ const Team = () => {
           </p>
         </div>
 
-        {/* Year Tabs */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2 md:gap-3">
-          {years.map((year) => (
-            <button
-              key={year}
-              onClick={() => setSelectedYear(year)}
-              className={`rounded-full px-5 py-2 text-xs md:text-sm font-medium transition-all duration-300
-            ${
-              selectedYear === year
-                ? "bg-[#0F2A5F] text-white shadow-lg"
-                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-100"
-            }`}
+{/* Year Dropdown */}
+        <div className="mt-8 flex justify-center">
+          <div className="relative inline-block w-48">
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(e.target.value)}
+              className="w-full appearance-none rounded-full bg-white px-5 py-2.5 pr-10 text-xs md:text-sm font-medium text-slate-700 border border-slate-200 shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#0F2A5F] focus:border-transparent cursor-pointer"
             >
-              {year}
-            </button>
-          ))}
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            {/* Custom Arrow Icon */}
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
         </div>
       </section>
 

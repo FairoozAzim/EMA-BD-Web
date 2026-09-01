@@ -70,7 +70,7 @@ const Banner = () => {
   ];
 
   return (
-    <section className="mt-20 relative isolate h-[65vh] min-h-[500px] sm:h-[75vh] sm:min-h-[560px] lg:h-[80vh] lg:min-h-[600px] w-full overflow-hidden">
+    <section className=" relative isolate h-[65vh] min-h-[500px] sm:h-[75vh] sm:min-h-[560px] lg:h-[80vh] lg:min-h-[600px] w-full overflow-hidden">
       {/* Background Images */}
       {slides.map((slide, index) => (
         <img

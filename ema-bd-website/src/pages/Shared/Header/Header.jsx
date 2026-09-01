@@ -36,7 +36,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 z-[1000] w-full bg-white shadow-sm">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 md:px-2">
         {/* Logo */}
         <NavLink to="/" className="w-32 shrink-0 md:w-36" onClick={closeMenu}>
           <img
