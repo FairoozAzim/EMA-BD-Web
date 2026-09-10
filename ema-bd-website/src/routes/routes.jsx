@@ -77,7 +77,6 @@ export const router = createBrowserRouter([
       {
         path: "/events",
         element: <Events></Events>,
-        loader: () => fetch("http://localhost:5001/events"),
       },
       {
         path: "/events/:eventId",
