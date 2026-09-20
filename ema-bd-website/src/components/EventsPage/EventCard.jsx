@@ -7,7 +7,7 @@ const EventCard = ({ event_details }) => {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col md:flex-row items-stretch w-full">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col-reverse md:flex-row items-stretch w-full">
       
       {/* Left Side: Event Text Details */}
       <div className="p-6 md:p-8 flex flex-col justify-between flex-grow">

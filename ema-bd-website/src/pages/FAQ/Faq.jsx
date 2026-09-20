@@ -5,7 +5,7 @@ import Accordion from "../../components/Accordion/Accordion";
 const Faq = () => {
   return (
     <div>
-      <div className="faq-wrapper max-w-7xl mx-auto px-4 md:px-2">
+      <div className="faq-wrapper max-w-7xl mx-auto px-4 md:px-2 pb-16 md:pb-24">
         <h1 className="text-center mt-5 text-3xl font-semibold tracking-tight text-[#0F2A5F] md:text-5xl">
           Frequently Asked Questions
         </h1>

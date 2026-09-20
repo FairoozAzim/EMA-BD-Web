@@ -40,7 +40,7 @@ const EventDetails = () => {
 
   return (
     <div className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="max-w-7xl mx-auto bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
         {/* Banner / Poster Image */}
         {eventData.banner && (
           <div className="w-full bg-slate-900 flex justify-center items-center overflow-hidden">

@@ -117,7 +117,7 @@ const Events = () => {
 
       {/* Conditional rendering for Full-Width Layout */}
       {activeTab === "upcoming" ? (
-        <div className="events-container mx-auto max-w-4xl px-4">
+        <div className="events-container mx-auto max-w-7xl px-4">
           <h2 className="text-2xl font-bold mb-6 text-slate-900">
             Events Coming Up!
           </h2>
@@ -138,7 +138,7 @@ const Events = () => {
           )}
         </div>
       ) : (
-        <div className="events-container mx-auto max-w-4xl px-4">
+        <div className="events-container mx-auto max-w-7xl px-4">
           <h2 className="text-2xl font-bold mb-6 text-slate-900">
             Previous Events
           </h2>
