@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import ErrorPage from "../Error/Error";
-import BlogCard, { API_URL, formatDate, imageUrl } from "./BlogCard";
+import BlogCard from "./BlogCard";
+import { API_URL, imageUrl, formatDate } from "./BlogUtils";
 
 const BlogsSkeleton = () => (
   <div className="min-h-screen">

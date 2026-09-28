@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import ErrorPage from "../Error/Error";
-import { API_URL, formatDate, imageUrl } from "./BlogCard";
+import { API_URL, imageUrl, formatDate } from "./BlogUtils";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#0F2A5F] md:text-base";
@@ -96,6 +96,7 @@ const BlogDetails = () => {
 
     form.reset();
   };
+  console.log(imageUrl(blog.blogImage));
 
   return (
     <div className="min-h-screen">

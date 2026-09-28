@@ -1,32 +1,32 @@
-import { NavLink } from 'react-router-dom';
-import logo from '../../../Assets/EMA BD LOGO.png';
-import { CiMenuFries } from 'react-icons/ci';
-import { IoClose, IoChevronDown } from 'react-icons/io5';
-import { useState } from 'react';
+import { NavLink } from "react-router-dom";
+import logo from "../../../Assets/EMA BD LOGO.png";
+import { CiMenuFries } from "react-icons/ci";
+import { IoClose, IoChevronDown } from "react-icons/io5";
+import { useState } from "react";
 
 const navItems = [
-  { name: 'Home', to: '/', end: true },
+  { name: "Home", to: "/", end: true },
   {
-    name: 'About Us',
-    to: '/about',
+    name: "About Us",
+    to: "/about",
     dropdown: [
-      { name: 'Speech from EUD', to: '/keynoteEud' },
-      { name: 'Speech from EMA CR', to: '/keynoteCR' },
+      { name: "Speech from EUD", to: "/keynoteEud" },
+      { name: "Speech from EMA CR", to: "/keynoteCR" },
     ],
   },
-  { name: 'Our Team', to: 'team' },
-  { name: 'Student and Alumni', to: 'alumni' },
-  { name: 'Events', to: 'events' },
-  { name: 'Blog', to: 'blogs' },
-  { name: 'FAQ', to: 'faq' },
-  { name: 'Contact', to: 'contact' },
+  { name: "Our Team", to: "team" },
+  { name: "Student and Alumni", to: "alumni" },
+  { name: "Events", to: "events" },
+  { name: "Blog", to: "blogs" },
+  { name: "FAQ", to: "faq" },
+  { name: "Contact", to: "contact" },
 ];
 
 const linkClass = ({ isActive }) =>
   `transition-colors duration-200 ${
     isActive
-      ? 'text-[#0F2A5F] font-semibold'
-      : 'text-gray-700 hover:text-[#C23911]'
+      ? "text-[#0F2A5F] font-semibold"
+      : "text-gray-700 hover:text-[#C23911]"
   }`;
 
 const Header = () => {
@@ -70,8 +70,8 @@ const Header = () => {
                       className={({ isActive }) =>
                         `block px-5 py-2.5 text-sm whitespace-nowrap transition-colors ${
                           isActive
-                            ? 'bg-gray-50 text-[#0F2A5F] font-semibold'
-                            : 'text-gray-700 hover:bg-gray-50 hover:text-[#C23911]'
+                            ? "bg-gray-50 text-[#0F2A5F] font-semibold"
+                            : "text-gray-700 hover:bg-gray-50 hover:text-[#C23911]"
                         }`
                       }
                     >
@@ -110,7 +110,7 @@ const Header = () => {
       {/* Mobile nav drawer */}
       <div
         className={`fixed right-0 top-0 z-[1000] h-screen w-[80%] max-w-xs transform bg-white shadow-2xl transition-transform duration-300 lg:hidden ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
+          isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Drawer header */}
@@ -127,7 +127,11 @@ const Header = () => {
         <nav className="flex flex-col overflow-y-auto px-3 py-4 pt-6">
           {navItems.map((item) =>
             item.dropdown ? (
-              <MobileDropdown key={item.name} item={item} closeMenu={closeMenu} />
+              <MobileDropdown
+                key={item.name}
+                item={item}
+                closeMenu={closeMenu}
+              />
             ) : (
               <NavLink
                 key={item.name}
@@ -137,8 +141,8 @@ const Header = () => {
                 className={({ isActive }) =>
                   `rounded-lg px-4 py-3 text-[15px] font-medium transition-colors ${
                     isActive
-                      ? 'bg-[#0F2A5F]/5 text-[#0F2A5F] font-semibold'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? "bg-[#0F2A5F]/5 text-[#0F2A5F] font-semibold"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`
                 }
               >
@@ -165,15 +169,35 @@ function MobileDropdown({ item, closeMenu }) {
 
   return (
     <div>
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between rounded-lg px-4 py-3 text-left text-[15px] font-medium text-gray-700 hover:bg-gray-50"
-      >
-        {item.name}
-        <IoChevronDown
-          className={`text-sm text-gray-400 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
+      <div className="flex items-center rounded-lg">
+        {/* About Us link */}
+        <NavLink
+          to={item.to}
+          end={item.end}
+          onClick={closeMenu}
+          className={({ isActive }) =>
+            `flex-1 px-4 py-3 text-left text-[15px] font-medium ${
+              isActive ? "text-[#0F2A5F] font-semibold" : "text-gray-700"
+            }`
+          }
+        >
+          {item.name}
+        </NavLink>
+
+        {/* Dropdown button */}
+        <button
+          onClick={() => setOpen(!open)}
+          className="px-4 py-3 text-gray-400"
+          aria-label={`Toggle ${item.name} submenu`}
+        >
+          <IoChevronDown
+            className={`text-sm transition-transform duration-200 ${
+              open ? "rotate-180" : ""
+            }`}
+          />
+        </button>
+      </div>
+
       {open && (
         <div className="ml-2 flex flex-col border-l-2 border-gray-100 pl-4">
           {item.dropdown.map((sub) => (
@@ -184,8 +208,8 @@ function MobileDropdown({ item, closeMenu }) {
               className={({ isActive }) =>
                 `rounded-md px-4 py-2.5 text-sm transition-colors ${
                   isActive
-                    ? 'text-[#0F2A5F] font-semibold'
-                    : 'text-gray-600 hover:bg-gray-50'
+                    ? "text-[#0F2A5F] font-semibold"
+                    : "text-gray-600 hover:bg-gray-50"
                 }`
               }
             >
