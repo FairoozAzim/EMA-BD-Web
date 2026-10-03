@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { FiArrowLeft } from "react-icons/fi";
 
 const EventDetails = () => {
   const { eventId } = useParams();
@@ -39,7 +40,14 @@ const EventDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto min-h-screen bg-slate-50/50 py-12 px-4 sm:px-6 lg:px-8">
+      <Link
+        to="/events"
+        className="mt-6 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-medium text-[#0F2A5F] transition mb-2"
+      >
+        <FiArrowLeft />
+        Back to Events
+      </Link>
       <div className="max-w-7xl mx-auto bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
         {/* Banner / Poster Image */}
         {eventData.banner && (

@@ -17,7 +17,7 @@ const navItems = [
   { name: "Our Team", to: "team" },
   { name: "Student and Alumni", to: "alumni" },
   { name: "Events", to: "events" },
-  { name: "Blog", to: "blogs" },
+  { name: "Blogs", to: "blogs" },
   { name: "FAQ", to: "faq" },
   { name: "Contact", to: "contact" },
 ];

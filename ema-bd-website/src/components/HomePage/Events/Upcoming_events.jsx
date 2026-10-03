@@ -36,7 +36,7 @@ const Upcoming_events = () => {
   if (isLoading) return null;
 
   return (
-    <section className="bg-slate-50/50 px-6 py-20 sm:px-8 lg:px-12 lg:py-28 border-y border-slate-100">
+    <section className="px-6 py-20 sm:px-8 lg:px-12 lg:py-28 bg-white">
       <div className="mx-auto max-w-5xl">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">

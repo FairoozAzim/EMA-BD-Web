@@ -67,7 +67,7 @@ const Blogs = () => {
       <section className="mx-auto max-w-7xl px-6 pb-10">
         <div className="text-center">
           <h1 className="mt-5 text-3xl font-semibold tracking-tight text-[#0F2A5F] md:text-5xl">
-            Our Blog
+            Our Blogs
           </h1>
 
           <p className="mx-auto mt-4 max-w-2xl text-xs text-slate-600 md:text-base">
