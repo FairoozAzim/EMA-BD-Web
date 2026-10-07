@@ -1,6 +1,5 @@
 import faq from "../../Assets/faq.json";
 import Accordion from "../../components/Accordion/Accordion";
-// import "./Faq.css";
 
 const Faq = () => {
   return (

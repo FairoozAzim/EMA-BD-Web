@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 
 import { imageUrl, formatDate } from "./BlogUtils";
-console.log(imageUrl)
 
 const BlogCard = ({ blog }) => {
   return (

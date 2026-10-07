@@ -62,18 +62,23 @@ const HomeBlogs = () => {
         {/* Blog Cards */}
         <div className="mt-12">
           {isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[...Array(3)].map((_, index) => (
-                <div key={index} className="h-full">
-                  <div className="aspect-[16/10] animate-pulse rounded-2xl bg-slate-200" />
-
-                  <div className="mt-4 h-5 w-3/4 animate-pulse rounded bg-slate-200" />
-
-                  <div className="mt-3 h-4 w-full animate-pulse rounded bg-slate-200" />
-
-                  <div className="mt-2 h-4 w-2/3 animate-pulse rounded bg-slate-200" />
-                </div>
-              ))}
+            <div className="">
+              <section className="mx-auto max-w-7xl px-6 pb-10">
+                <div className="mx-auto mt-5 h-10 w-64 animate-pulse rounded bg-slate-200" />
+                <div className="mx-auto mt-4 h-4 w-full max-w-2xl animate-pulse rounded bg-slate-200" />
+              </section>
+              <section className="mx-auto max-w-7xl px-6 pb-12">
+                <div className="aspect-[4/3] animate-pulse sm:aspect-[16/9] lg:aspect-[16/6] rounded-2xl bg-slate-200" />
+              </section>
+              <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-20 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i}>
+                    <div className="aspect-[16/10] animate-pulse rounded-xl bg-slate-200" />
+                    <div className="mt-4 h-4 w-1/2 animate-pulse rounded bg-slate-200" />
+                    <div className="mt-3 h-6 w-full animate-pulse rounded bg-slate-200" />
+                  </div>
+                ))}
+              </section>
             </div>
           ) : latestBlogs.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -98,7 +103,6 @@ const HomeBlogs = () => {
               className="group inline-flex items-center gap-2 rounded-lg bg-[#0F2A5F] px-3 py-2 text-xs font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#0b214c] hover:shadow-lg md:px-6 md:py-3.5 md:text-sm"
             >
               View All Blogs
-
               <span className="text-lg transition-transform duration-300 group-hover:translate-x-1">
                 →
               </span>
