@@ -158,7 +158,6 @@ export const router = createBrowserRouter([
       {
         path: "manageAlumni",
         element: <AlumniManagement></AlumniManagement>,
-        loader: () => fetch("http://localhost:5001/alumni"),
       },
       {
         path: "logout",
