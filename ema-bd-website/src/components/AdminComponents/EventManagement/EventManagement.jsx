@@ -1,234 +1,650 @@
-import { MdDelete, MdOutlineFileUpload } from "react-icons/md";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import DatePicker from "react-datepicker";
-
-import Modal from "../../Modal/Modal";
-// import ev1 from '../../../Assets/images/event1.png';
-// import ev2 from '../../../Assets/images/event2.jpg';
-
-import "./EventManagement.css";
 import "react-datepicker/dist/react-datepicker.css";
-
+import Swal from "sweetalert2";
+import Pagination from "../../Pagination/Pagination";
+import {
+  MdAdd,
+  MdDeleteOutline,
+  MdOutlineFileUpload,
+  MdEvent,
+  MdLocationOn,
+  MdRefresh,
+  MdClose,
+  MdAccessTime,
+} from "react-icons/md";
+const API = import.meta.env.VITE_API_URL;
+const formatTime = (date) => {
+  return date.toTimeString().slice(0, 8);
+};
+const fetchEvents = async () => {
+  const response = await fetch(`${API}/events`);
+  if (!response.ok) {
+    throw new Error("Failed to load events.");
+  }
+  return response.json();
+};
 const EventManagement = () => {
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
-  const [image, setImage] = useState(null);
-  const [fileName, setFileName] = useState([]);
-  const [events, setEvents] = useState([]);
-  const [startDate, setStartDate] = useState(new Date());
-  const [time, setTime] = useState("");
-  //  const today = new Date();
-  // console.log("time", time);
-  // console.log(events);
-  const openModal = () => {
+  const [bannerFile, setBannerFile] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTime, setSelectedTime] = useState(new Date());
+  const [formError, setFormError] = useState("");
+  const formRef = useRef(null);
+  const ITEMS_PER_PAGE = 12;
+  const [currentPage, setCurrentPage] = useState(1);
+  const {
+    data: events = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
+    queryKey: ["events"],
+    queryFn: fetchEvents,
+    staleTime: 5 * 60 * 1000,
+  });
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [events.length]);
+  const sortedEvents = useMemo(() => {
+    const items = [...(events ?? [])];
+    const getTimestamp = (item) => {
+      if (item.createdAt) {
+        const timestamp = new Date(item.createdAt).getTime();
+        if (!Number.isNaN(timestamp)) return timestamp;
+      }
+      // MongoDB ObjectIds contain their creation timestamp in the first 8 characters.
+      if (typeof item._id === "string" && /^[a-f\d]{24}$/i.test(item._id)) {
+        return parseInt(item._id.slice(0, 8), 16) * 1000;
+      }
+      return null;
+    };
+    const timestamps = items.map(getTimestamp);
+    const hasTimestamps = timestamps.some((timestamp) => timestamp !== null);
+    // If the API has no timestamps/ ObjectId IDs, assume it returns oldest first.
+    if (!hasTimestamps) return items.reverse();
+    return items.sort((a, b) => (getTimestamp(b) ?? 0) - (getTimestamp(a) ?? 0));
+  }, [events]);
+  const paginatedEvents = sortedEvents.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+  useEffect(() => {
+    if (!bannerFile) {
+      setPreview("");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(bannerFile);
+    setPreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [bannerFile]);
+  const createMutation = useMutation({
+    mutationFn: async (formData) => {
+      const response = await fetch(`${API}/events`, {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to create event.");
+      }
+      return result;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+      setCurrentPage(1);
+      setIsOpen(false);
+      resetForm();
+      await Swal.fire({
+        title: "Event created!",
+        text: "Your event has been added successfully.",
+        icon: "success",
+        confirmButtonColor: "#0F2A5F",
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        title: "Create failed",
+        text: error.message || "Could not create the event. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#0F2A5F",
+      });
+    },
+  });
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await fetch(`${API}/events/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to delete event.");
+      }
+      if (
+        result.deletedCount === 0 ||
+        (result.deletedCount === undefined && result.success === false)
+      ) {
+        throw new Error("The event could not be deleted.");
+      }
+      return result;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+      await Swal.fire({
+        title: "Deleted!",
+        text: "The event has been deleted successfully.",
+        icon: "success",
+        confirmButtonColor: "#0F2A5F",
+      });
+    },
+    onError: (error) => {
+      Swal.fire({
+        title: "Delete failed",
+        text: error.message || "Could not delete the event. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#0F2A5F",
+      });
+    },
+  });
+  const resetForm = () => {
+    formRef.current?.reset();
+    setBannerFile(null);
+    setSelectedDate(new Date());
+    setSelectedTime(new Date());
+    setFormError("");
+  };
+  const closeModal = () => {
+    if (createMutation.isPending) return;
+    setIsOpen(false);
+    resetForm();
+  };
+  const handleBannerChange = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setFormError("Please select a valid image file.");
+      event.target.value = "";
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError("The banner must be smaller than 5 MB.");
+      event.target.value = "";
+      return;
+    }
+    setFormError("");
+    setBannerFile(file);
+  };
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    setFormError("");
+    if (!selectedDate || !selectedTime) {
+      setFormError("Please select both an event date and time.");
+      return;
+    }
+    const formData = new FormData(event.currentTarget);
+    formData.set("date", selectedDate.toLocaleDateString("en-GB"));
+    formData.set("time", formatTime(selectedTime));
+    formData.set("desc", formData.get("desc")?.toString().trim() ?? "");
+    if (bannerFile) {
+      formData.set("banner", bannerFile);
+    }
+    createMutation.mutate(formData);
+  };
+  const handleDelete = async (event) => {
+    const result = await Swal.fire({
+      title: "Delete this event?",
+      text: `Are you sure you want to delete "${event.title}"? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#64748b",
+      reverseButtons: true,
+    });
+    if (!result.isConfirmed) return;
+    deleteMutation.mutate(event._id);
+  };
+  const openCreateModal = () => {
+    setFormError("");
     setIsOpen(true);
   };
-
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  const getTime = (time) => {
-    const hours = time.getHours();
-    const minutes = time.getMinutes();
-    const seconds = time.getSeconds();
-
-    // Format the time as hh:mm:ss
-    const formattedTime = `${hours < 10 ? "0" : ""}${hours}:${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-    return formattedTime;
-  };
-
-  useEffect(() => {
-    fetch("http://localhost:5001/events")
-      .then((res) => res.json())
-      .then((data) => setEvents(data));
-  }, []);
-
-  const handleImageUpload = (event) => {
-    console.log(event.target.files);
-    setImage(URL.createObjectURL(event.target.files[0]));
-    setFileName(event.target.files[0]);
-    // console.log(image);
-  };
-
-  const handleAddEvent = (event) => {
-    event.preventDefault();
-    let formData = new FormData();
-    const form = event.target;
-    const newEvent = {
-      title: form.title.value,
-      date: startDate.toLocaleDateString("en-GB"),
-      time: getTime(time),
-      place: form.place.value,
-      link: form.link.value,
-      org: form.org.value,
-      banner: fileName,
-      desc: form.eventDesc.value,
-    };
-    for (const key in newEvent) {
-      formData.append(key, newEvent[key]);
-    }
-
-    console.log(fileName);
-    fetch("http://localhost:5001/events", {
-      method: "POST",
-      body: formData,
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log("post response", data);
-        const addNewEvent = [...events, data];
-        setEvents[addNewEvent];
-        setImage(null);
-        form.reset();
-        setIsOpen(false);
-      });
-  };
-
-  const handleDeleteEvent = (id) => {
-    console.log(id);
-    fetch(`http://localhost:5001/events/${id}`, {
-      method: "DELETE",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        if (data.deletedCount > 0) {
-          alert("Deleted Successfully!");
-        }
-      });
-  };
-
   return (
-    <div>
-      <div className="d-flex event-header">
-        <div className="upcoming-event">
-          <h2>Upcoming Events</h2>
-          <p>No Upcoming Events</p>
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      {/* Page header */}
+      <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="mb-2 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0F2A5F] text-white shadow-sm">
+              <MdEvent size={26} />
+            </div>
+            <h1 className="text-2xl font-bold text-[#0F2A5F] sm:text-3xl">
+              Event Management
+            </h1>
+          </div>
+          <p className="text-sm text-slate-500 sm:text-base">
+            Create events and manage the EMA-BD event listings.
+          </p>
         </div>
-        <button className="create-btn btn-red event-btn" onClick={openModal}>
+        <button
+          type="button"
+          onClick={openCreateModal}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F2A5F] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#173b7b]"
+        >
+          <MdAdd size={22} />
           Create an Event
         </button>
-        <Modal isOpen={isOpen} onClose={closeModal}>
-          <h3 className="text-center">Create an Event</h3>
-          <form className="create-form" onSubmit={handleAddEvent}>
-            <div className="form-content">
-              <input name="title" type="text" placeholder="Event Title"></input>
-              <div className="d-flex double-input">
-                {/* <input name='date' type='text' placeholder='Event Date'> */}
-                <DatePicker
-                  className="date-time-input"
-                  name="date"
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  placeholderText="Event Date"
-                ></DatePicker>
-                {/* </input> */}
-                <DatePicker
-                  className="date-time-input"
-                  name="time"
-                  selected={time}
-                  onChange={(time) => setTime(time)}
-                  placeholderText="Event Time"
-                  showTimeSelect
-                  showTimeSelectOnly
-                  timeIntervals={15}
-                  timeCaption="Time"
-                  dateFormat="h:mm aa"
-                ></DatePicker>
-              </div>
-              <div className="d-flex double-input">
-                <input
-                  name="place"
-                  type="text"
-                  placeholder="Place of Event"
-                ></input>
-                <input
-                  name="org"
-                  type="text"
-                  placeholder="Partner Organization"
-                ></input>
-              </div>
-              <input
-                name="link"
-                type="text"
-                placeholder="Joining Link/ Registration Link"
-              ></input>
-              <div className="image-input-container">
-                <input
-                  name="banner"
-                  type="file"
-                  id="banner"
-                  className="event-banner"
-                  placeholder="Event Banner"
-                  hidden
-                  onChange={handleImageUpload}
-                ></input>
-
-                {image ? (
-                  <div className="banner-img-container">
-                    <img
-                      className="banner-img"
-                      src={image}
-                      accept="image/*"
-                    ></img>
+      </div>
+      {/* Success feedback */}
+      {/* Event summary */}
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Total events</p>
+              <p className="mt-2 text-3xl font-bold text-[#0F2A5F]">
+                {isLoading ? "—" : events.length}
+              </p>
+            </div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-[#0F2A5F]">
+              <MdEvent size={27} />
+            </div>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">
+                Event listings
+              </p>
+              <p className="mt-2 text-lg font-bold text-slate-800">
+                {isLoading
+                  ? "Loading..."
+                  : events.length
+                    ? "Available"
+                    : "No events yet"}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              aria-label="Refresh events"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:bg-slate-50 hover:text-[#0F2A5F] disabled:opacity-50"
+            >
+              <MdRefresh
+                size={23}
+                className={isFetching ? "animate-spin" : ""}
+              />
+            </button>
+          </div>
+        </div>
+      </div>
+      {/* Event list */}
+      <section>
+        <div className="mb-5">
+          <h2 className="text-xl font-bold text-slate-800">All Events</h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Review event details or remove an event listing.
+          </p>
+        </div>
+        {isLoading ? (
+          <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
+            Loading events...
+          </div>
+        ) : isError ? (
+          <div
+            role="alert"
+            className="rounded-2xl border border-red-200 bg-red-50 px-6 py-10 text-center"
+          >
+            <p className="font-semibold text-red-700">Unable to load events</p>
+            <p className="mt-2 text-sm text-red-600">
+              {error?.message || "Please check your connection and try again."}
+            </p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="mt-5 rounded-xl bg-[#0F2A5F] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#173b7b]"
+            >
+              Try again
+            </button>
+          </div>
+        ) : paginatedEvents.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+            <MdEvent className="mx-auto mb-4 text-4xl text-slate-300" />
+            <h3 className="text-lg font-semibold text-slate-800">
+              No events found
+            </h3>
+            <p className="mt-2 text-sm text-slate-500">
+              Create an event to get started.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Mobile cards */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+              {paginatedEvents.map((item) => (
+                <article
+                  key={item._id}
+                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-semibold text-slate-800">
+                      {item.title}
+                    </h3>
                     <button
-                      className="delete-img"
-                      onClick={() => setImage(null)}
+                      type="button"
+                      onClick={() => handleDelete(item)}
+                      disabled={deleteMutation.isPending}
+                      aria-label={`Delete ${item.title}`}
+                      className="shrink-0 rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
                     >
-                      Clear Image
+                      <MdDeleteOutline size={22} />
                     </button>
                   </div>
-                ) : (
-                  <label className="banner-label" htmlFor="banner">
-                    <MdOutlineFileUpload className="icon" />
-                    Choose a banner
-                  </label>
-                )}
+                  <div className="mt-4 space-y-2 text-sm text-slate-500">
+                    <p className="flex items-center gap-2">
+                      <MdEvent className="shrink-0 text-[#0F2A5F]" />
+                      {item.date || "Date not specified"}
+                    </p>
+                    {item.time && (
+                      <p className="flex items-center gap-2">
+                        <MdAccessTime className="shrink-0 text-[#0F2A5F]" />
+                        {item.time}
+                      </p>
+                    )}
+                    {item.place && (
+                      <p className="flex items-center gap-2">
+                        <MdLocationOn className="shrink-0 text-[#0F2A5F]" />
+                        {item.place}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+            {/* Desktop table */}
+            <div className="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm md:block">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                    <tr>
+                      <th className="px-6 py-4 font-semibold">Event title</th>
+                      <th className="px-6 py-4 font-semibold">Date</th>
+                      <th className="px-6 py-4 font-semibold">Time</th>
+                      <th className="px-6 py-4 font-semibold">Location</th>
+                      <th className="px-6 py-4 text-right font-semibold">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paginatedEvents.map((item) => (
+                      <tr
+                        key={item._id}
+                        className="transition hover:bg-slate-50/70"
+                      >
+                        <td className="max-w-xs px-6 py-4 font-semibold text-slate-800">
+                          {item.title}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-slate-600">
+                          {item.date || "—"}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-slate-600">
+                          {item.time || "—"}
+                        </td>
+                        <td className="px-6 py-4 text-slate-600">
+                          {item.place || "—"}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(item)}
+                            disabled={deleteMutation.isPending}
+                            aria-label={`Delete ${item.title}`}
+                            className="inline-flex items-center justify-center rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
+                          >
+                            <MdDeleteOutline size={21} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <textarea
-                name="eventDesc"
-                type="text"
-                placeholder="Description"
-                rows={10}
-              ></textarea>
-              <button className="submit btn-submit" type="submit">
-                Submit
+            </div>
+          </>
+        )}
+      </section>
+      {/* Create event modal */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-6"
+          onMouseDown={(event) => {
+            if (
+              event.target === event.currentTarget &&
+              !createMutation.isPending
+            ) {
+              closeModal();
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-event-title"
+            className="flex max-h-[95vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-7">
+              <div>
+                <h2
+                  id="create-event-title"
+                  className="text-xl font-bold text-[#0F2A5F]"
+                >
+                  Create an Event
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Add event information and upload a banner.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeModal}
+                disabled={createMutation.isPending}
+                aria-label="Close form"
+                className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
+              >
+                <MdClose size={23} />
               </button>
             </div>
-          </form>
-        </Modal>
-      </div>
-
-      <div className="event-wrapper">
-        <h2 className="text-center">Past Events</h2>
-        <table className="event-table">
-          <thead>
-            <tr>
-              <td>Event Title</td>
-              <td>Date</td>
-              <td>Action</td>
-            </tr>
-          </thead>
-          <tbody>
-            {events.map((event) => (
-              <tr key={event._id}>
-                <td>{event.title}</td>
-                <td>{event.date}</td>
-                <td className="text-center">
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteEvent(event._id)}
+            <form
+              ref={formRef}
+              onSubmit={handleSubmit}
+              className="flex min-h-0 flex-1 flex-col"
+            >
+              <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-7">
+                {formError && (
+                  <div
+                    role="alert"
+                    className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
                   >
-                    <MdDelete />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    {formError}
+                  </div>
+                )}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Event title
+                  </label>
+                  <input
+                    name="title"
+                    required
+                    maxLength={200}
+                    placeholder="Enter event title"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      Event date
+                    </label>
+                    <DatePicker
+                      selected={selectedDate}
+                      onChange={setSelectedDate}
+                      minDate={new Date()}
+                      dateFormat="dd/MM/yyyy"
+                      placeholderText="Select event date"
+                      required
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                      wrapperClassName="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      Event time
+                    </label>
+                    <DatePicker
+                      selected={selectedTime}
+                      onChange={setSelectedTime}
+                      showTimeSelect
+                      showTimeSelectOnly
+                      timeIntervals={15}
+                      timeCaption="Time"
+                      dateFormat="h:mm aa"
+                      placeholderText="Select event time"
+                      required
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                      wrapperClassName="w-full"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      Event location
+                    </label>
+                    <input
+                      name="place"
+                      required
+                      placeholder="Enter event location"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-slate-700">
+                      Partner organization
+                    </label>
+                    <input
+                      name="org"
+                      placeholder="Enter organization name"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Registration or joining link
+                  </label>
+                  <input
+                    name="link"
+                    type="url"
+                    placeholder="https\://example.com/register"
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Event banner
+                  </label>
+                  {preview ? (
+                    <div className="relative overflow-hidden rounded-xl border border-slate-200">
+                      <img
+                        src={preview}
+                        alt="Event banner preview"
+                        className="h-48 w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setBannerFile(null)}
+                        className="absolute right-3 top-3 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-red-600 shadow hover:bg-red-50"
+                      >
+                        Remove banner
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-[#0F2A5F] hover:bg-blue-50/50">
+                      <MdOutlineFileUpload
+                        size={32}
+                        className="mb-2 text-[#0F2A5F]"
+                      />
+                      <span className="text-sm font-semibold text-slate-700">
+                        Click to upload an event banner
+                      </span>
+                      <span className="mt-1 text-xs text-slate-500">
+                        Image files up to 5 MB
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleBannerChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-700">
+                    Event description
+                  </label>
+                  <textarea
+                    name="desc"
+                    required
+                    rows={5}
+                    maxLength={10000}
+                    placeholder="Describe the event, its purpose and what participants can expect..."
+                    className="w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  disabled={createMutation.isPending}
+                  className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createMutation.isPending}
+                  className="rounded-xl bg-[#0F2A5F] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#173b7b] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {createMutation.isPending
+                    ? "Creating event..."
+                    : "Create Event"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {sortedEvents.length > ITEMS_PER_PAGE && (
+        <div className="mt-8 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            itemsPerPage={ITEMS_PER_PAGE}
+            totalItems={sortedEvents.length}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
     </div>
   );
 };
-
 export default EventManagement;

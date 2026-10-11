@@ -1,15 +1,60 @@
 /* eslint-disable react/no-unescaped-entities */
 import { useForm } from "react-hook-form";
+import { useState } from "react";
+import emailjs from "@emailjs/browser";
 
 const Contact = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setSubmitMessage("");
+
+    try {
+      const fullName = `${data.firstName.trim()} ${data.lastName.trim()}`;
+
+      const templateParams = {
+        from_name: fullName,
+        reply_to: data.email.trim(),
+        message: data.message.trim(),
+      };
+
+      await emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        {
+          publicKey: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+          limitRate: {
+            id: "ema-contact-form",
+            throttle: 10000,
+          },
+        },
+      );
+
+      setSubmitSuccess(true);
+      setSubmitMessage("Thank you! Your message has been sent successfully.");
+
+      reset();
+    } catch (error) {
+      console.error("EmailJS error:", error);
+
+      setSubmitSuccess(false);
+      setSubmitMessage(
+        "Unable to send your message right now. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -278,24 +323,25 @@ const Contact = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="inline-flex w-full items-center justify-center rounded-lg bg-[#0F2A5F] px-6 py-3 text-sm font-medium text-white transition duration-200 hover:bg-[#0b214d] focus:outline-none focus:ring-2 focus:ring-[#0F2A5F] focus:ring-offset-2 sm:w-auto"
+                  disabled={isSubmitting}
+                  className="inline-flex w-full items-center justify-center rounded-lg bg-[#0F2A5F] px-6 py-3 text-sm font-medium text-white transition duration-200 hover:bg-[#0b214d] disabled:cursor-not-allowed disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#0F2A5F] focus:ring-offset-2 sm:w-auto"
                 >
-                  Send Message
-                  <svg
-                    className="ml-2 h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                    />
-                  </svg>
+                  {isSubmitting ? "Sending..." : "Send Message"}
+
+                  {/* Keep your existing SVG icon here */}
                 </button>
               </div>
+              {submitMessage && (
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className={`mt-4 text-sm ${
+                    submitSuccess ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {submitMessage}
+                </p>
+              )}
             </form>
           </div>
         </div>

@@ -12,7 +12,7 @@ import Blogs from "../pages/Blogs/Blogs";
 import Dashboard from "../Layout/Dashboard/Dashboard";
 import EventManagement from "../components/AdminComponents/EventManagement/EventManagement";
 import BlogManagement from "../components/AdminComponents/BlogManagement/BlogManagement";
-import CreateBlog from "../components/AdminComponents/BlogManagement/createBlog";
+import CreateBlog from "../components/AdminComponents/BlogManagement/CreateBlog";
 import AdminHome from "../components/AdminComponents/AdminHome/AdminHome";
 import Faq from "../pages/FAQ/Faq";
 import Login from "../pages/Login/Login";
@@ -130,7 +130,6 @@ export const router = createBrowserRouter([
     path: "/dashboard",
     element: (
       <ProtectedRoute>
-        {" "}
         <Dashboard></Dashboard>
       </ProtectedRoute>
     ),
