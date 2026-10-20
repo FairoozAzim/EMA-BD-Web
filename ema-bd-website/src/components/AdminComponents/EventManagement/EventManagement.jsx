@@ -13,6 +13,7 @@ import {
   MdRefresh,
   MdClose,
   MdAccessTime,
+  MdEdit,
 } from "react-icons/md";
 const API = import.meta.env.VITE_API_URL;
 const formatTime = (date) => {
@@ -32,6 +33,8 @@ const EventManagement = () => {
   const [preview, setPreview] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [existingBanner, setExistingBanner] = useState("");
   const [formError, setFormError] = useState("");
   const formRef = useRef(null);
   const ITEMS_PER_PAGE = 12;
@@ -68,7 +71,9 @@ const EventManagement = () => {
     const hasTimestamps = timestamps.some((timestamp) => timestamp !== null);
     // If the API has no timestamps/ ObjectId IDs, assume it returns oldest first.
     if (!hasTimestamps) return items.reverse();
-    return items.sort((a, b) => (getTimestamp(b) ?? 0) - (getTimestamp(a) ?? 0));
+    return items.sort(
+      (a, b) => (getTimestamp(b) ?? 0) - (getTimestamp(a) ?? 0),
+    );
   }, [events]);
   const paginatedEvents = sortedEvents.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -116,6 +121,47 @@ const EventManagement = () => {
       });
     },
   });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, formData }) => {
+      const response = await fetch(`${API}/events/${id}`, {
+        method: "PUT",
+        body: formData,
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to update event.");
+      }
+
+      return result;
+    },
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["events"] });
+
+      setIsOpen(false);
+      resetForm();
+
+      await Swal.fire({
+        title: "Event updated!",
+        text: "Your event has been updated successfully.",
+        icon: "success",
+        confirmButtonColor: "#0F2A5F",
+      });
+    },
+
+    onError: (error) => {
+      Swal.fire({
+        title: "Update failed",
+        text: error.message || "Could not update the event. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#0F2A5F",
+      });
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
       const response = await fetch(`${API}/events/${id}`, {
@@ -154,12 +200,17 @@ const EventManagement = () => {
   const resetForm = () => {
     formRef.current?.reset();
     setBannerFile(null);
+    setPreview("");
+    setExistingBanner("");
+    setEditingEvent(null);
     setSelectedDate(new Date());
     setSelectedTime(new Date());
     setFormError("");
   };
+
   const closeModal = () => {
     if (createMutation.isPending) return;
+
     setIsOpen(false);
     resetForm();
   };
@@ -179,22 +230,41 @@ const EventManagement = () => {
     setFormError("");
     setBannerFile(file);
   };
+
+  // HANDLE SUBMIT
   const handleSubmit = (event) => {
     event.preventDefault();
     setFormError("");
+
     if (!selectedDate || !selectedTime) {
       setFormError("Please select both an event date and time.");
       return;
     }
+
     const formData = new FormData(event.currentTarget);
+
     formData.set("date", selectedDate.toLocaleDateString("en-GB"));
     formData.set("time", formatTime(selectedTime));
     formData.set("desc", formData.get("desc")?.toString().trim() ?? "");
+
+    // Include a new banner only if the user selected one.
     if (bannerFile) {
       formData.set("banner", bannerFile);
     }
+
+    // Update existing event.
+    if (editingEvent) {
+      updateMutation.mutate({
+        id: editingEvent._id,
+        formData,
+      });
+      return;
+    }
+
+    // Otherwise, create a new event as before.
     createMutation.mutate(formData);
   };
+
   const handleDelete = async (event) => {
     const result = await Swal.fire({
       title: "Delete this event?",
@@ -210,10 +280,66 @@ const EventManagement = () => {
     if (!result.isConfirmed) return;
     deleteMutation.mutate(event._id);
   };
+  const parseEventDate = (dateString) => {
+    if (!dateString) return new Date();
+
+    // Handles dates stored as DD/MM/YYYY
+    const parts = dateString.split("/");
+    if (parts.length === 3) {
+      const [day, month, year] = parts.map(Number);
+      const parsedDate = new Date(year, month - 1, day);
+
+      if (!Number.isNaN(parsedDate.getTime())) {
+        return parsedDate;
+      }
+    }
+
+    // Also supports ISO-style dates
+    const parsedDate = new Date(dateString);
+    return Number.isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
+  };
+
+  const parseEventTime = (timeString) => {
+    if (!timeString) return new Date();
+
+    const [hours, minutes, seconds] = timeString.split(":").map(Number);
+
+    const parsedTime = new Date();
+    parsedTime.setHours(hours || 0, minutes || 0, seconds || 0, 0);
+
+    return parsedTime;
+  };
+
   const openCreateModal = () => {
     setFormError("");
     setIsOpen(true);
   };
+
+  const handleEdit = (event) => {
+    setEditingEvent(event);
+    setFormError("");
+    setBannerFile(null);
+    setPreview("");
+
+    setExistingBanner(event.banner || "");
+
+    setSelectedDate(parseEventDate(event.date));
+    setSelectedTime(parseEventTime(event.time));
+
+    setIsOpen(true);
+  };
+
+  useEffect(() => {
+    if (!isOpen || !editingEvent || !formRef.current) return;
+
+    const form = formRef.current;
+
+    form.elements.title.value = editingEvent.title || "";
+    form.elements.place.value = editingEvent.place || "";
+    form.elements.org.value = editingEvent.org || "";
+    form.elements.link.value = editingEvent.link || "";
+    form.elements.desc.value = editingEvent.desc || "";
+  }, [isOpen, editingEvent]);
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       {/* Page header */}
@@ -337,15 +463,27 @@ const EventManagement = () => {
                     <h3 className="font-semibold text-slate-800">
                       {item.title}
                     </h3>
-                    <button
-                      type="button"
-                      onClick={() => handleDelete(item)}
-                      disabled={deleteMutation.isPending}
-                      aria-label={`Delete ${item.title}`}
-                      className="shrink-0 rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
-                    >
-                      <MdDeleteOutline size={22} />
-                    </button>
+
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(item)}
+                        aria-label={`Edit ${item.title}`}
+                        className="rounded-lg p-2 text-[#0F2A5F] transition hover:bg-blue-50"
+                      >
+                        <MdEdit size={21} />
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(item)}
+                        disabled={deleteMutation.isPending}
+                        aria-label={`Delete ${item.title}`}
+                        className="rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
+                      >
+                        <MdDeleteOutline size={22} />
+                      </button>
+                    </div>
                   </div>
                   <div className="mt-4 space-y-2 text-sm text-slate-500">
                     <p className="flex items-center gap-2">
@@ -402,15 +540,26 @@ const EventManagement = () => {
                           {item.place || "—"}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(item)}
-                            disabled={deleteMutation.isPending}
-                            aria-label={`Delete ${item.title}`}
-                            className="inline-flex items-center justify-center rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
-                          >
-                            <MdDeleteOutline size={21} />
-                          </button>
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => handleEdit(item)}
+                              aria-label={`Edit ${item.title}`}
+                              className="inline-flex items-center justify-center rounded-lg p-2 text-[#0F2A5F] transition hover:bg-blue-50"
+                            >
+                              <MdEdit size={21} />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(item)}
+                              disabled={deleteMutation.isPending}
+                              aria-label={`Delete ${item.title}`}
+                              className="inline-flex items-center justify-center rounded-lg p-2 text-red-600 transition hover:bg-red-50 disabled:opacity-40"
+                            >
+                              <MdDeleteOutline size={21} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -428,7 +577,8 @@ const EventManagement = () => {
           onMouseDown={(event) => {
             if (
               event.target === event.currentTarget &&
-              !createMutation.isPending
+              !createMutation.isPending &&
+              !updateMutation.isPending
             ) {
               closeModal();
             }
@@ -446,16 +596,18 @@ const EventManagement = () => {
                   id="create-event-title"
                   className="text-xl font-bold text-[#0F2A5F]"
                 >
-                  Create an Event
+                  {editingEvent ? "Edit Event" : "Create an Event"}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Add event information and upload a banner.
+                  {editingEvent
+                    ? "Update the event information below."
+                    : "Add event information and upload a banner."}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                disabled={createMutation.isPending}
+                disabled={createMutation.isPending || updateMutation.isPending}
                 aria-label="Close form"
                 className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
               >
@@ -561,16 +713,31 @@ const EventManagement = () => {
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Event banner
                   </label>
-                  {preview ? (
+                  {preview || existingBanner ? (
                     <div className="relative overflow-hidden rounded-xl border border-slate-200">
                       <img
-                        src={preview}
+                        src={
+                          preview ||
+                          (existingBanner
+                            ? `${API}/uploads/${existingBanner}`
+                            : "")
+                        }
                         alt="Event banner preview"
                         className="h-48 w-full object-cover"
+                        onError={(e) => {
+                          console.error(
+                            "Banner failed to load:",
+                            e.currentTarget.src,
+                          );
+                        }}
                       />
                       <button
                         type="button"
-                        onClick={() => setBannerFile(null)}
+                        onClick={() => {
+                          setBannerFile(null);
+                          setPreview("");
+                          setExistingBanner("");
+                        }}
                         className="absolute right-3 top-3 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-red-600 shadow hover:bg-red-50"
                       >
                         Remove banner
@@ -615,19 +782,27 @@ const EventManagement = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  disabled={createMutation.isPending}
+                  disabled={
+                    createMutation.isPending || updateMutation.isPending
+                  }
                   className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={createMutation.isPending}
+                  disabled={
+                    createMutation.isPending || updateMutation.isPending
+                  }
                   className="rounded-xl bg-[#0F2A5F] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#173b7b] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {createMutation.isPending
-                    ? "Creating event..."
-                    : "Create Event"}
+                  {createMutation.isPending || updateMutation.isPending
+                    ? editingEvent
+                      ? "Saving changes..."
+                      : "Creating event..."
+                    : editingEvent
+                      ? "Save Changes"
+                      : "Create Event"}
                 </button>
               </div>
             </form>
