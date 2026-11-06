@@ -255,7 +255,7 @@ async function run() {
         });
       }
     });
-    
+
     //===========================Event Delete
 
     app.delete("/events/:eventId", async (req, res) => {
@@ -279,28 +279,47 @@ async function run() {
     });
     // ===========================BLOG =====================================
 
-    //blog posting endpoint
+    //===========================Blog Post
+    app.post("/blogs", upload.single("blogImage"), async (req, res) => {
+      try {
+        const { title, author, date, time, text } = req.body;
 
-    app.post("/blogs", upload.single("blogImage"), (req, res) => {
-      const newBlog = req.body;
-      newBlog.blogImage = req.file.filename;
-      // console.log("blog: ", newBlog);
-      blogCollection
-        .insertOne(newBlog)
-        .then((blog) => {
-          res.status(200).send({
-            message: "Blog posted successfully",
-            data: newBlog,
+        if (!title || !author || !text || !req.file) {
+          return res.status(400).json({
+            message: "Title, author, content and cover image are required.",
           });
-        })
-        .catch((error) => {
-          res.status(400).send({
-            message: "Something went wrong! Please try again.",
-            error,
-          });
+        }
+
+        const newBlog = {
+          title,
+          author,
+          date,
+          time,
+          text,
+          blogImage: req.file.filename,
+          likes: 0,
+        };
+
+        const result = await blogCollection.insertOne(newBlog);
+
+        res.status(201).json({
+          message: "Blog posted successfully.",
+          data: {
+            ...newBlog,
+            _id: result.insertedId,
+          },
         });
+      } catch (error) {
+        console.error("Error creating blog:", error);
+
+        res.status(500).json({
+          message: "Something went wrong while creating the blog.",
+          error: error.message,
+        });
+      }
     });
 
+    //===========================Blog Comment
     app.post("/blogComment", (req, res) => {
       const newComment = req.body;
 
@@ -321,7 +340,7 @@ async function run() {
         });
     });
 
-    //==================Get Blogs
+    //===========================Get Blogs
     app.get("/blogs", async (req, res) => {
       const cursor = blogCollection.find();
       const blogsList = await cursor.toArray();
@@ -350,7 +369,8 @@ async function run() {
           .send({ message: "Something went wrong! Please try again.", error });
       }
     });
-    //Get Blog by ID
+
+    //==========================Get Blog by ID
     app.get("/blogs/:blogId", async (req, res) => {
       const blogId = req.params.blogId;
       console.log(blogId);
@@ -372,6 +392,94 @@ async function run() {
           console.error("Error fetching event:", error);
           res.status(500).json({ message: "Internal Server Error" });
         });
+    });
+
+    // =========================== BLOG EDIT ===========================
+
+    app.put("/blogs/:blogId", upload.single("blogImage"), async (req, res) => {
+      const { blogId } = req.params;
+
+      try {
+        if (!ObjectId.isValid(blogId)) {
+          return res.status(400).json({ message: "Invalid blog ID." });
+        }
+
+        const { title, author, date, time, text } = req.body;
+
+        const updatedFields = {};
+
+        if (title !== undefined) updatedFields.title = title;
+        if (author !== undefined) updatedFields.author = author;
+        if (date !== undefined) updatedFields.date = date;
+        if (time !== undefined) updatedFields.time = time;
+        if (text !== undefined) updatedFields.text = text;
+
+        // Replace the cover image only if a new one was uploaded.
+        if (req.file) {
+          updatedFields.blogImage = req.file.filename;
+        }
+
+        if (Object.keys(updatedFields).length === 0) {
+          return res.status(400).json({
+            message: "No changes provided.",
+          });
+        }
+
+        const result = await blogCollection.updateOne(
+          { _id: new ObjectId(blogId) },
+          { $set: updatedFields },
+        );
+
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ message: "Blog not found." });
+        }
+
+        res.status(200).json({
+          message: "Blog updated successfully.",
+          data: { blogId, ...updatedFields },
+        });
+      } catch (error) {
+        console.error("Error updating blog:", error);
+
+        res.status(500).json({
+          message: "Something went wrong while updating the blog.",
+          error: error.message,
+        });
+      }
+    });
+
+    // =========================== BLOG DELETE ===========================
+
+    app.delete("/blogs/:blogId", async (req, res) => {
+      const { blogId } = req.params;
+
+      try {
+        if (!ObjectId.isValid(blogId)) {
+          return res.status(400).json({ message: "Invalid blog ID." });
+        }
+
+        const result = await blogCollection.deleteOne({
+          _id: new ObjectId(blogId),
+        });
+
+        if (result.deletedCount === 0) {
+          return res.status(404).json({
+            message: "Blog not found.",
+          });
+        }
+
+        res.status(200).json({
+          message: "Blog deleted successfully.",
+          deletedCount: result.deletedCount,
+        });
+      } catch (error) {
+        console.error("Error deleting blog:", error);
+
+        res.status(500).json({
+          message: "Something went wrong while deleting the blog.",
+          error: error.message,
+        });
+      }
     });
 
     //===================================Alumni============================

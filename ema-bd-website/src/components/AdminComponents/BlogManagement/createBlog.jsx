@@ -23,19 +23,20 @@ import {
   MdFormatAlignCenter,
   MdFormatAlignRight,
 } from "react-icons/md";
+import Swal from "sweetalert2";
 
 const API = import.meta.env.VITE_API_URL;
 
 const toolbarButton =
   "inline-flex h-9 min-w-9 items-center justify-center rounded-lg border border-slate-200 px-2 text-slate-600 transition hover:bg-blue-50 hover:text-[#0F2A5F] disabled:cursor-not-allowed disabled:opacity-40";
 
-const CreateBlog = ({ onClose, onCreated }) => {
+const CreateBlog = ({ onClose, onCreated, editBlog = null }) => {
+  const isEditing = Boolean(editBlog?._id);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [coverImage, setCoverImage] = useState(null);
   const [preview, setPreview] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
 
   const editor = useEditor({
     extensions: [
@@ -71,6 +72,21 @@ const CreateBlog = ({ onClose, onCreated }) => {
   });
 
   useEffect(() => {
+    if (!editor) return;
+
+    if (editBlog) {
+      setTitle(editBlog.title || "");
+      setAuthor(editBlog.author || "");
+      editor.commands.setContent(editBlog.text || "");
+    } else {
+      setTitle("");
+      setAuthor("");
+      setCoverImage(null);
+      editor.commands.clearContent();
+    }
+  }, [editor, editBlog]);
+
+  useEffect(() => {
     if (!coverImage) {
       setPreview("");
       return;
@@ -91,18 +107,27 @@ const CreateBlog = ({ onClose, onCreated }) => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file.");
+      Swal.fire({
+        title: "Invalid Image",
+        text: "Please select a valid image file.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
       event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("The cover image must be smaller than 5 MB.");
+      Swal.fire({
+        title: "Image Too Large",
+        text: "The cover image must be smaller than 5 MB.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
       event.target.value = "";
       return;
     }
 
-    setError("");
     setCoverImage(file);
   };
 
@@ -122,11 +147,14 @@ const CreateBlog = ({ onClose, onCreated }) => {
     const safeUrl = url.trim();
 
     if (!/^(https?:\/\/|mailto:)/i.test(safeUrl)) {
-      setError("Enter a valid URL starting with https://, http://, or mailto:.");
+      Swal.fire({
+        title: "Invalid URL",
+        text: "Enter a URL starting with https://, http://, or mailto:.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
       return;
     }
-
-    setError("");
     editor
       .chain()
       .focus()
@@ -143,39 +171,56 @@ const CreateBlog = ({ onClose, onCreated }) => {
       const parsedUrl = new URL(url.trim());
 
       if (!["http:", "https:"].includes(parsedUrl.protocol)) {
-        setError("Please enter a valid HTTP or HTTPS image URL.");
-        return;
+        throw new Error("Only HTTP and HTTPS image URLs are allowed.");
       }
 
-      setError("");
       editor
         ?.chain()
         .focus()
         .setImage({ src: parsedUrl.href, alt: "Blog image" })
         .run();
     } catch {
-      setError("Please enter a valid image URL.");
+      Swal.fire({
+        title: "Invalid Image URL",
+        text: "Please enter a valid HTTP or HTTPS image URL.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
     }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError("");
 
     if (!title.trim() || !author.trim()) {
-      setError("Please enter both the blog title and author name.");
+      Swal.fire({
+        title: "Missing Information",
+        text: "Please enter both the blog title and author name.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
       return;
     }
 
-    if (!coverImage) {
-      setError("Please upload a cover image.");
+    if (!isEditing && !coverImage) {
+      Swal.fire({
+        title: "Cover Image Required",
+        text: "Please upload a cover image.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
       return;
     }
 
     const html = editor?.getHTML() || "";
 
     if (!editor || editor.isEmpty || !editor.getText().trim()) {
-      setError("Please write some blog content.");
+      Swal.fire({
+        title: "Content Required",
+        text: "Please write some blog content.",
+        icon: "warning",
+        confirmButtonColor: "#0F2A5F",
+      });
       return;
     }
 
@@ -187,29 +232,48 @@ const CreateBlog = ({ onClose, onCreated }) => {
     formData.append("date", now.toDateString());
     formData.append("time", now.toTimeString());
     formData.append("text", html);
-    formData.append("blogImage", coverImage);
+
+    if (coverImage) {
+      formData.append("blogImage", coverImage);
+    }
 
     setSubmitting(true);
 
     try {
-      const response = await fetch(`${API}/blogs`, {
-        method: "POST",
+      const url = isEditing ? `${API}/blogs/${editBlog._id}` : `${API}/blogs`;
+
+      const response = await fetch(url, {
+        method: isEditing ? "PUT" : "POST",
         body: formData,
       });
 
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        throw new Error(result.message || "Failed to create the blog.");
+        throw new Error(
+          result.message ||
+            `Failed to ${isEditing ? "update" : "create"} the blog.`,
+        );
       }
 
-      if (result.data) {
-        onCreated?.(result.data);
-      } else {
-        onClose();
-      }
+      await Swal.fire({
+        title: isEditing ? "Blog Updated!" : "Blog Published!",
+        text: isEditing
+          ? "Your blog has been updated successfully."
+          : "Your blog has been published successfully.",
+        icon: "success",
+        confirmButtonColor: "#0F2A5F",
+      });
+
+      onCreated?.(result.data || editBlog);
+      onClose();
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      Swal.fire({
+        title: "Something Went Wrong!",
+        text: err.message || "Please try again.",
+        icon: "error",
+        confirmButtonColor: "#0F2A5F",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -238,10 +302,12 @@ const CreateBlog = ({ onClose, onCreated }) => {
               id="create-blog-title"
               className="text-xl font-bold text-[#0F2A5F]"
             >
-              Create a Blog
+              {isEditing ? "Edit Blog" : "Create a Blog"}
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              Write, format and publish a new article.
+              {isEditing
+                ? "Update your article details and content."
+                : "Write, format and publish a new article."}
             </p>
           </div>
 
@@ -258,15 +324,6 @@ const CreateBlog = ({ onClose, onCreated }) => {
 
         <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
           <div className="flex-1 space-y-5 overflow-y-auto px-5 py-5 sm:px-7">
-            {error && (
-              <div
-                role="alert"
-                className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
-              >
-                {error}
-              </div>
-            )}
-
             <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label
@@ -312,12 +369,17 @@ const CreateBlog = ({ onClose, onCreated }) => {
                 Cover image
               </label>
 
-              {preview ? (
+              {preview || (isEditing && editBlog?.blogImage) ? (
                 <div className="relative overflow-hidden rounded-xl border border-slate-200">
                   <img
-                    src={preview}
-                    alt="Blog cover preview"
-                    className="h-48 w-full object-cover sm:h-56"
+                    src={
+                      preview ||
+                      (editBlog?.blogImage
+                        ? `${API}/uploads/${editBlog.blogImage}`
+                        : "")
+                    }
+                    alt="Blog preview"
+                    className="w-full h-full object-cover"
                   />
                   <button
                     type="button"
@@ -381,7 +443,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Underline"
                     aria-label="Underline"
-                    onClick={() => editor.chain().focus().toggleUnderline().run()}
+                    onClick={() =>
+                      editor.chain().focus().toggleUnderline().run()
+                    }
                     className={`${toolbarButton} ${editor.isActive("underline") ? "bg-blue-100 text-[#0F2A5F]" : ""}`}
                   >
                     <MdFormatUnderlined size={20} />
@@ -401,9 +465,17 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     onChange={(event) => {
                       const value = event.target.value;
                       if (value === "h2") {
-                        editor.chain().focus().toggleHeading({ level: 2 }).run();
+                        editor
+                          .chain()
+                          .focus()
+                          .toggleHeading({ level: 2 })
+                          .run();
                       } else if (value === "h3") {
-                        editor.chain().focus().toggleHeading({ level: 3 }).run();
+                        editor
+                          .chain()
+                          .focus()
+                          .toggleHeading({ level: 3 })
+                          .run();
                       } else {
                         editor.chain().focus().setParagraph().run();
                       }
@@ -419,7 +491,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Bullet list"
                     aria-label="Bullet list"
-                    onClick={() => editor.chain().focus().toggleBulletList().run()}
+                    onClick={() =>
+                      editor.chain().focus().toggleBulletList().run()
+                    }
                     className={`${toolbarButton} ${editor.isActive("bulletList") ? "bg-blue-100 text-[#0F2A5F]" : ""}`}
                   >
                     <MdFormatListBulleted size={20} />
@@ -429,7 +503,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Numbered list"
                     aria-label="Numbered list"
-                    onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                    onClick={() =>
+                      editor.chain().focus().toggleOrderedList().run()
+                    }
                     className={`${toolbarButton} ${editor.isActive("orderedList") ? "bg-blue-100 text-[#0F2A5F]" : ""}`}
                   >
                     <MdFormatListNumbered size={20} />
@@ -439,7 +515,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Quote"
                     aria-label="Quote"
-                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    onClick={() =>
+                      editor.chain().focus().toggleBlockquote().run()
+                    }
                     className={`${toolbarButton} ${editor.isActive("blockquote") ? "bg-blue-100 text-[#0F2A5F]" : ""}`}
                   >
                     <MdFormatQuote size={20} />
@@ -451,7 +529,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Align left"
                     aria-label="Align left"
-                    onClick={() => editor.chain().focus().setTextAlign("left").run()}
+                    onClick={() =>
+                      editor.chain().focus().setTextAlign("left").run()
+                    }
                     className={toolbarButton}
                   >
                     <MdFormatAlignLeft size={20} />
@@ -461,7 +541,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Align center"
                     aria-label="Align center"
-                    onClick={() => editor.chain().focus().setTextAlign("center").run()}
+                    onClick={() =>
+                      editor.chain().focus().setTextAlign("center").run()
+                    }
                     className={toolbarButton}
                   >
                     <MdFormatAlignCenter size={20} />
@@ -471,7 +553,9 @@ const CreateBlog = ({ onClose, onCreated }) => {
                     type="button"
                     title="Align right"
                     aria-label="Align right"
-                    onClick={() => editor.chain().focus().setTextAlign("right").run()}
+                    onClick={() =>
+                      editor.chain().focus().setTextAlign("right").run()
+                    }
                     className={toolbarButton}
                   >
                     <MdFormatAlignRight size={20} />
@@ -526,8 +610,8 @@ const CreateBlog = ({ onClose, onCreated }) => {
               </div>
 
               <p className="mt-2 text-xs text-slate-500">
-                Select text before applying formatting or adding a link.
-                Inline images must be available at a public URL.
+                Select text before applying formatting or adding a link. Inline
+                images must be available at a public URL.
               </p>
             </div>
           </div>
@@ -547,7 +631,13 @@ const CreateBlog = ({ onClose, onCreated }) => {
               disabled={submitting}
               className="rounded-xl bg-[#0F2A5F] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#173b7b] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {submitting ? "Publishing..." : "Publish Blog"}
+              {submitting
+                ? isEditing
+                  ? "Updating..."
+                  : "Publishing..."
+                : isEditing
+                  ? "Update Blog"
+                  : "Publish Blog"}
             </button>
           </div>
         </form>
