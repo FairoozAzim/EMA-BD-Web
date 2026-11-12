@@ -4,6 +4,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Swal from "sweetalert2";
 import Pagination from "../../Pagination/Pagination";
+import RichTextEditor, {
+  useRichTextEditor,
+} from "../BlogManagement/RichTextEditor";
+import CoverCropper from "../BlogManagement/CoverCropper";
+import { isHtmlContent, plainTextToHtml } from "../../../pages/Blogs/BlogUtils";
 import {
   MdAdd,
   MdDeleteOutline,
@@ -15,7 +20,24 @@ import {
   MdAccessTime,
   MdEdit,
 } from "react-icons/md";
+
 const API = import.meta.env.VITE_API_URL;
+
+/* ---------- Banner image rules (same as blog covers) ---------- */
+// The 16:9 ratio and max output size live in CoverCropper.jsx
+const BANNER_MIN_WIDTH = 800;
+const BANNER_MIN_HEIGHT = 450;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+
+const warn = (title, text) =>
+  Swal.fire({
+    title,
+    text,
+    icon: "warning",
+    confirmButtonColor: "#0F2A5F",
+  });
+
 const formatTime = (date) => {
   return date.toTimeString().slice(0, 8);
 };
@@ -31,14 +53,23 @@ const EventManagement = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [bannerFile, setBannerFile] = useState(null);
   const [preview, setPreview] = useState("");
+  const [cropSource, setCropSource] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedTime, setSelectedTime] = useState(new Date());
   const [editingEvent, setEditingEvent] = useState(null);
   const [existingBanner, setExistingBanner] = useState("");
   const [formError, setFormError] = useState("");
   const formRef = useRef(null);
+  const bannerInputRef = useRef(null);
   const ITEMS_PER_PAGE = 12;
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Rich text editor for the event description
+  const editor = useRichTextEditor({
+    placeholder:
+      "Describe the event, its purpose and what participants can expect...",
+  });
+
   const {
     data: events = [],
     isLoading,
@@ -79,6 +110,8 @@ const EventManagement = () => {
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
+
+  // Preview URL for the cropped banner
   useEffect(() => {
     if (!bannerFile) {
       setPreview("");
@@ -88,6 +121,13 @@ const EventManagement = () => {
     setPreview(objectUrl);
     return () => URL.revokeObjectURL(objectUrl);
   }, [bannerFile]);
+
+  // Release the temporary URL used by the cropper
+  useEffect(() => {
+    if (!cropSource) return;
+    return () => URL.revokeObjectURL(cropSource.url);
+  }, [cropSource]);
+
   const createMutation = useMutation({
     mutationFn: async (formData) => {
       const response = await fetch(`${API}/events`, {
@@ -199,8 +239,10 @@ const EventManagement = () => {
   });
   const resetForm = () => {
     formRef.current?.reset();
+    editor?.commands.clearContent();
     setBannerFile(null);
     setPreview("");
+    setCropSource(null);
     setExistingBanner("");
     setEditingEvent(null);
     setSelectedDate(new Date());
@@ -214,21 +256,61 @@ const EventManagement = () => {
     setIsOpen(false);
     resetForm();
   };
+
+  // Validates the chosen image, then opens the 16:9 cropper
   const handleBannerChange = (event) => {
     const file = event.target.files?.[0];
+    event.target.value = ""; // lets the same file be selected again
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setFormError("Please select a valid image file.");
-      event.target.value = "";
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      warn("Invalid Image", "Please upload a JPG, PNG or WebP image.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setFormError("The banner must be smaller than 5 MB.");
-      event.target.value = "";
+
+    if (file.size > MAX_FILE_SIZE) {
+      warn("Image Too Large", "The banner must be smaller than 5 MB.");
       return;
     }
-    setFormError("");
+
+    const url = URL.createObjectURL(file);
+    const img = new window.Image();
+
+    img.onload = () => {
+      if (
+        img.naturalWidth < BANNER_MIN_WIDTH ||
+        img.naturalHeight < BANNER_MIN_HEIGHT
+      ) {
+        URL.revokeObjectURL(url);
+        warn(
+          "Image Too Small",
+          `The banner must be at least ${BANNER_MIN_WIDTH}×${BANNER_MIN_HEIGHT} px. Your image is ${img.naturalWidth}×${img.naturalHeight} px.`,
+        );
+        return;
+      }
+
+      setCropSource({
+        url,
+        image: img,
+        width: img.naturalWidth,
+        height: img.naturalHeight,
+      });
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      warn(
+        "Invalid Image",
+        "This image could not be read. Please try another file.",
+      );
+    };
+
+    img.src = url;
+  };
+
+  const handleCropApply = (file) => {
     setBannerFile(file);
+    setCropSource(null);
   };
 
   // HANDLE SUBMIT
@@ -241,11 +323,17 @@ const EventManagement = () => {
       return;
     }
 
+    if (!editor || editor.isEmpty || !editor.getText().trim()) {
+      warn("Description Required", "Please write the event description.");
+      return;
+    }
+
     const formData = new FormData(event.currentTarget);
 
     formData.set("date", selectedDate.toLocaleDateString("en-GB"));
     formData.set("time", formatTime(selectedTime));
-    formData.set("desc", formData.get("desc")?.toString().trim() ?? "");
+    // The description is stored as HTML produced by the rich text editor.
+    formData.set("desc", editor.getHTML());
 
     // Include a new banner only if the user selected one.
     if (bannerFile) {
@@ -312,6 +400,7 @@ const EventManagement = () => {
 
   const openCreateModal = () => {
     setFormError("");
+    editor?.commands.clearContent();
     setIsOpen(true);
   };
 
@@ -326,9 +415,16 @@ const EventManagement = () => {
     setSelectedDate(parseEventDate(event.date));
     setSelectedTime(parseEventTime(event.time));
 
+    // Old events store plain text; new events store HTML.
+    const description = event.desc || "";
+    editor?.commands.setContent(
+      isHtmlContent(description) ? description : plainTextToHtml(description),
+    );
+
     setIsOpen(true);
   };
 
+  // Fill the plain inputs when editing (the description is handled by the editor)
   useEffect(() => {
     if (!isOpen || !editingEvent || !formRef.current) return;
 
@@ -338,7 +434,6 @@ const EventManagement = () => {
     form.elements.place.value = editingEvent.place || "";
     form.elements.org.value = editingEvent.org || "";
     form.elements.link.value = editingEvent.link || "";
-    form.elements.desc.value = editingEvent.desc || "";
   }, [isOpen, editingEvent]);
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
@@ -570,7 +665,7 @@ const EventManagement = () => {
           </>
         )}
       </section>
-      {/* Create event modal */}
+      {/* Create / edit event modal */}
       {isOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-3 backdrop-blur-sm sm:p-6"
@@ -588,7 +683,7 @@ const EventManagement = () => {
             role="dialog"
             aria-modal="true"
             aria-labelledby="create-event-title"
-            className="flex max-h-[95vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="flex max-h-[95vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 sm:px-7">
               <div>
@@ -705,16 +800,27 @@ const EventManagement = () => {
                   <input
                     name="link"
                     type="url"
-                    placeholder="https\://example.com/register"
+                    placeholder="https://example.com/register"
                     className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
                   />
                 </div>
+
+                {/* Event banner */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Event banner
                   </label>
+
+                  <input
+                    ref={bannerInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleBannerChange}
+                    className="hidden"
+                  />
+
                   {preview || existingBanner ? (
-                    <div className="relative overflow-hidden rounded-xl border border-slate-200">
+                    <div className="relative aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
                       <img
                         src={
                           preview ||
@@ -723,7 +829,7 @@ const EventManagement = () => {
                             : "")
                         }
                         alt="Event banner preview"
-                        className="h-48 w-full object-cover"
+                        className="h-full w-full object-cover"
                         onError={(e) => {
                           console.error(
                             "Banner failed to load:",
@@ -731,20 +837,33 @@ const EventManagement = () => {
                           );
                         }}
                       />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setBannerFile(null);
-                          setPreview("");
-                          setExistingBanner("");
-                        }}
-                        className="absolute right-3 top-3 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-red-600 shadow hover:bg-red-50"
-                      >
-                        Remove banner
-                      </button>
+                      <div className="absolute right-3 top-3 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => bannerInputRef.current?.click()}
+                          className="rounded-lg bg-white/95 px-3 py-2 text-xs font-semibold text-[#0F2A5F] shadow transition hover:bg-white"
+                        >
+                          Change banner
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBannerFile(null);
+                            setPreview("");
+                            setExistingBanner("");
+                          }}
+                          className="rounded-lg bg-white/95 px-3 py-2 text-xs font-semibold text-red-600 shadow transition hover:bg-white"
+                        >
+                          Remove banner
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-[#0F2A5F] hover:bg-blue-50/50">
+                    <button
+                      type="button"
+                      onClick={() => bannerInputRef.current?.click()}
+                      className="flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center transition hover:border-[#0F2A5F] hover:bg-blue-50/50"
+                    >
                       <MdOutlineFileUpload
                         size={32}
                         className="mb-2 text-[#0F2A5F]"
@@ -753,29 +872,19 @@ const EventManagement = () => {
                         Click to upload an event banner
                       </span>
                       <span className="mt-1 text-xs text-slate-500">
-                        Image files up to 5 MB
+                        JPG, PNG or WebP · up to 5 MB · at least 800×450 px ·
+                        cropped to 16:9
                       </span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleBannerChange}
-                        className="hidden"
-                      />
-                    </label>
+                    </button>
                   )}
                 </div>
+
+                {/* Event description */}
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-700">
                     Event description
                   </label>
-                  <textarea
-                    name="desc"
-                    required
-                    rows={5}
-                    maxLength={10000}
-                    placeholder="Describe the event, its purpose and what participants can expect..."
-                    className="w-full resize-y rounded-xl border border-slate-200 px-4 py-3 text-sm leading-6 outline-none focus:border-[#0F2A5F] focus:ring-2 focus:ring-blue-100"
-                  />
+                  <RichTextEditor editor={editor} />
                 </div>
               </div>
               <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-5 py-4 sm:flex-row sm:justify-end sm:px-7">
@@ -809,6 +918,15 @@ const EventManagement = () => {
           </div>
         </div>
       )}
+
+      {cropSource && (
+        <CoverCropper
+          source={cropSource}
+          onCancel={() => setCropSource(null)}
+          onApply={handleCropApply}
+        />
+      )}
+
       {sortedEvents.length > ITEMS_PER_PAGE && (
         <div className="mt-8 flex justify-center">
           <Pagination

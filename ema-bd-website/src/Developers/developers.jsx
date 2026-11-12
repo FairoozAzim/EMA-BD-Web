@@ -2,7 +2,7 @@ import { FaGithub, FaLinkedinIn, FaEnvelope } from "react-icons/fa";
 
 const developers = [
   {
-    name: "Shaheen Alam Shuvo",
+    name: "Saheen Alam Shuvo",
     role: "Full-Stack Web Developer",
     initials: "SS",
     img: "https://res.cloudinary.com/dfzgnncyc/image/upload/v1785941755/Shuvo_kd1lb3.jpg",

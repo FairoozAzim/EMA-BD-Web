@@ -155,7 +155,7 @@ function Footer() {
             </p>
 
             <p>
-              Created by{' '}
+              Developed by{' '}
               <Link
                 to="/developers"
                 className="font-medium text-white/80 transition hover:text-white"
