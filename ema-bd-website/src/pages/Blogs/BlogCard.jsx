@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { imageUrl, formatDate } from "./BlogUtils";
+import { imageUrl, formatDate, getExcerpt } from "./BlogUtils";
 
 const BlogCard = ({ blog }) => {
   return (
@@ -29,7 +29,7 @@ const BlogCard = ({ blog }) => {
 
           {/* flex-1 pushes the footer to the bottom on every card */}
           <p className="mt-2 line-clamp-3 flex-1 text-sm text-slate-600 md:text-base">
-            {blog.text}
+            {getExcerpt(blog.text)}
           </p>
 
           {/* Footer */}

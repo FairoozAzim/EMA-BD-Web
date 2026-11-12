@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import ErrorPage from "../Error/Error";
 import BlogCard from "./BlogCard";
-import { API_URL, imageUrl, formatDate } from "./BlogUtils";
+import { API_URL, imageUrl, formatDate, getExcerpt } from "./BlogUtils";
 
 const BlogsSkeleton = () => (
   <div className="min-h-screen">
@@ -118,7 +118,7 @@ const Blogs = () => {
                   {latest.title}
                 </h3>
                 <p className="mt-4 line-clamp-3 text-sm text-blue-100 md:text-base">
-                  {latest.text}
+                  {getExcerpt(latest.text)}
                 </p>
                 <p className="mt-6 text-xs text-blue-200 md:text-sm">
                   <span className="font-semibold text-white">

@@ -2,10 +2,23 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import ErrorPage from "../Error/Error";
-import { API_URL, imageUrl, formatDate } from "./BlogUtils";
+import DOMPurify from "dompurify";
+import { API_URL, imageUrl, formatDate, isHtmlContent } from "./BlogUtils";
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#0F2A5F] md:text-base";
+
+const blogContentStyles = [
+  "[&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:text-[#0F2A5F]",
+  "[&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:text-[#0F2A5F]",
+  "[&_p]:my-3",
+  "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-6",
+  "[&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-6",
+  "[&_li]:my-1 [&_li>p]:my-0",
+  "[&_blockquote]:my-4 [&_blockquote]:border-l-4 [&_blockquote]:border-slate-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-slate-600",
+  "[&_a]:text-blue-700 [&_a]:underline",
+  "[&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_img]:rounded-lg",
+].join(" ");
 
 const BlogDetailsSkeleton = () => (
   <div className="min-h-screen">
@@ -72,6 +85,10 @@ const BlogDetails = () => {
   if (error || !blog) {
     return <ErrorPage error={error?.message ?? "Blog not found"} />;
   }
+  const isHtml = isHtmlContent(blog.text);
+  const safeHtml = isHtml
+    ? DOMPurify.sanitize(blog.text, { ADD_ATTR: ["target"] }) // keep target="_blank" on links
+    : "";
 
   const comments = [...(blog.comments ?? []), ...newComments];
 
@@ -96,7 +113,6 @@ const BlogDetails = () => {
 
     form.reset();
   };
-  console.log(imageUrl(blog.blogImage));
 
   return (
     <div className="min-h-screen">
@@ -136,10 +152,16 @@ const BlogDetails = () => {
           </div>
 
           {/* Body: whitespace-pre-line keeps the author's line breaks */}
-          <article className="mt-8 whitespace-pre-line break-words text-sm leading-relaxed text-slate-700 md:mt-10 md:text-base md:leading-8">
-            {blog.text}
-          </article>
-
+          {isHtml ? (
+            <article
+              className={`mt-8 break-words text-sm leading-relaxed text-slate-700 md:mt-10 md:text-base md:leading-8 ${blogContentStyles}`}
+              dangerouslySetInnerHTML={{ __html: safeHtml }}
+            />
+          ) : (
+            <article className="mt-8 whitespace-pre-line break-words text-sm leading-relaxed text-slate-700 md:mt-10 md:text-base md:leading-8">
+              {blog.text}
+            </article>
+          )}
           {/* Comment form */}
           <section className="mt-14 border-t border-slate-200 pt-10">
             <div className="mb-6">
@@ -276,7 +298,9 @@ const BlogDetails = () => {
                           src={imageUrl(post.blogImage)}
                           alt={post.title}
                           loading="lazy"
-                          onError={(e) => (e.currentTarget.style.display = "none")}
+                          onError={(e) =>
+                            (e.currentTarget.style.display = "none")
+                          }
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
