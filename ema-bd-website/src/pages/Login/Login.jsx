@@ -38,11 +38,12 @@ const Login = () => {
       })
       .then((data) => {
         if (data.email) {
+          const roles = Array.isArray(data.role) ? data.role : [];
           localStorage.setItem("token", data.token);
-          localStorage.setItem("role", data.role);
+          localStorage.setItem("role", JSON.stringify(roles));
 
           login();
-          setRole(data.role);
+          setRole(roles);
 
           setSuccess("Login successful! Redirecting...");
 

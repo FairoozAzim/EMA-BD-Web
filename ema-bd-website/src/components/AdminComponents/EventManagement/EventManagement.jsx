@@ -20,6 +20,7 @@ import {
   MdAccessTime,
   MdEdit,
 } from "react-icons/md";
+import { adminAuthHeaders } from "../../../utils/adminApi";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -132,6 +133,7 @@ const EventManagement = () => {
     mutationFn: async (formData) => {
       const response = await fetch(`${API}/events`, {
         method: "POST",
+        headers: adminAuthHeaders(),
         body: formData,
       });
       const result = await response.json().catch(() => ({}));
@@ -166,6 +168,7 @@ const EventManagement = () => {
     mutationFn: async ({ id, formData }) => {
       const response = await fetch(`${API}/events/${id}`, {
         method: "PUT",
+        headers: adminAuthHeaders(),
         body: formData,
       });
 
@@ -206,6 +209,7 @@ const EventManagement = () => {
     mutationFn: async (id) => {
       const response = await fetch(`${API}/events/${id}`, {
         method: "DELETE",
+        headers: adminAuthHeaders(),
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {

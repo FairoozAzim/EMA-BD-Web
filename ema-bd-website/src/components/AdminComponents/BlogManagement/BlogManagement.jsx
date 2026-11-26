@@ -12,6 +12,7 @@ import {
   MdCalendarToday,
   MdFavorite,
 } from "react-icons/md";
+import { adminAuthHeaders } from "../../../utils/adminApi";
 
 import CreateBlog from "./CreateBlog";
 
@@ -169,6 +170,7 @@ const BlogManagement = () => {
     mutationFn: async (blogId) => {
       const response = await fetch(`${API}/blogs/${blogId}`, {
         method: "DELETE",
+        headers: adminAuthHeaders(),
       });
 
       const result = await response.json().catch(() => ({}));

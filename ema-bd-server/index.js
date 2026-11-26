@@ -8,6 +8,12 @@ const fs = require("fs");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 require("dotenv").config();
+const jwtSecret = process.env.JWT_SECRET;
+
+if (!jwtSecret || jwtSecret.length < 32) {
+  throw new Error("JWT_SECRET must contain at least 32 characters.");
+}
+
 const app = express();
 const port = process.env.PORT || 5001;
 
@@ -56,6 +62,200 @@ async function run() {
     const blogCollection = db.collection("Blogs");
     const alumniCollection = db.collection("StudentsAlumni");
     const commentCollection = db.collection("Comments");
+    const supportedRoles = [
+      "SuperAdmin",
+      "Monitor",
+      "EventManager",
+      "StudentManager",
+      "HomeViewer",
+    ];
+    const accountQuery = {
+      email: { $type: "string" },
+      password: { $type: "string" },
+    };
+    const publicMemberProjection = {
+      _id: 1,
+      url: 1,
+      linkedIn: 1,
+      name: 1,
+      position: 1,
+      email: 1,
+      about: 1,
+      year: 1,
+    };
+    const publicStudentProjection = { _accountLinkRevision: 0 };
+    try {
+      await memberCollection.createIndex(
+        { studentId: 1 },
+        {
+          unique: true,
+          partialFilterExpression: { studentId: { $type: "objectId" } },
+          name: "unique_student_account_link",
+        },
+      );
+    } catch (error) {
+      console.error("Unable to enforce unique student-account links:", error);
+    }
+
+    const isValidObjectId = (id) =>
+      typeof id === "string" && /^[a-f\d]{24}$/i.test(id);
+
+    const authenticate = async (req, res, next) => {
+      const authorization = req.get("authorization") || "";
+      const match = /^Bearer ([^\s]+)$/.exec(authorization);
+
+      if (!match) {
+        return res.status(401).json({ message: "Authentication required." });
+      }
+
+      const token = match[1];
+      let payload;
+      try {
+        payload = jwt.verify(token, jwtSecret);
+      } catch {
+        return res.status(401).json({ message: "Invalid or expired token." });
+      }
+
+      if (!payload?.userId || !isValidObjectId(payload.userId)) {
+        return res.status(401).json({ message: "Invalid or expired token." });
+      }
+
+      try {
+        const account = await memberCollection.findOne({
+          _id: new ObjectId(payload.userId),
+          ...accountQuery,
+        });
+
+        if (!account) {
+          return res.status(401).json({ message: "Account is unavailable." });
+        }
+
+        req.authenticatedAccount = account;
+        next();
+      } catch (error) {
+        console.error("Error authenticating request:", error);
+        res.status(500).json({ message: "Unable to authenticate request." });
+      }
+    };
+
+    const requireSuperAdmin = (req, res, next) => {
+      if (!Array.isArray(req.authenticatedAccount?.adminType)) {
+        return res.status(403).json({ message: "SuperAdmin access required." });
+      }
+
+      if (!req.authenticatedAccount.adminType.includes("SuperAdmin")) {
+        return res.status(403).json({ message: "SuperAdmin access required." });
+      }
+
+      next();
+    };
+
+    const requireAnyRole = (...roles) => (req, res, next) => {
+      const accountRoles = req.authenticatedAccount?.adminType;
+      if (
+        !Array.isArray(accountRoles) ||
+        !accountRoles.some((role) => roles.includes(role))
+      ) {
+        return res.status(403).json({ message: "Insufficient permissions." });
+      }
+
+      next();
+    };
+
+    const requireEventManagement = requireAnyRole(
+      "SuperAdmin",
+      "Monitor",
+      "EventManager",
+    );
+    const requireBlogManagement = requireAnyRole("SuperAdmin", "Monitor");
+
+    const validateRoles = (roles, allowEmpty = false) => {
+      if (
+        !Array.isArray(roles) ||
+        (!allowEmpty && roles.length === 0) ||
+        roles.some(
+          (role) =>
+            typeof role !== "string" || !supportedRoles.includes(role),
+        ) ||
+        new Set(roles).size !== roles.length
+      ) {
+        return "Select one or more distinct supported roles.";
+      }
+
+      return null;
+    };
+
+    const safeAccount = (account) => ({
+      _id: account._id.toString(),
+      name: account.name || account.Name || "",
+      email: account.email,
+      adminType: Array.isArray(account.adminType) ? account.adminType : [],
+      studentId: account.studentId ? account.studentId.toString() : null,
+    });
+
+    const countSuperAdminAccounts = (session) =>
+      memberCollection.countDocuments(
+        {
+          ...accountQuery,
+          adminType: "SuperAdmin",
+        },
+        session ? { session } : undefined,
+      );
+
+    const ensureLastSuperAdminRemains = async (
+      account,
+      roles,
+      session,
+    ) => {
+      if (
+        !account.adminType?.includes("SuperAdmin") ||
+        roles.includes("SuperAdmin")
+      ) {
+        return null;
+      }
+
+      const count = await countSuperAdminAccounts(session);
+      return count <= 1
+        ? "The last SuperAdmin role cannot be removed."
+        : null;
+    };
+
+    const withRoleChangeLock = async (session, operation) => {
+      const lockAccount = await memberCollection.findOne(accountQuery, {
+        session,
+        sort: { _id: 1 },
+        projection: { _id: 1 },
+      });
+
+      if (!lockAccount) {
+        throw new Error("No login account is available for role management.");
+      }
+
+      await memberCollection.updateOne(
+        { _id: lockAccount._id },
+        { $inc: { _roleRevision: 1 } },
+        { session },
+      );
+
+      return operation();
+    };
+
+    const isTransactionUnavailable = (error) =>
+      error.code === 20 ||
+      error.codeName === "IllegalOperation" ||
+      error.message?.includes("Transaction numbers are only allowed");
+
+    const editableStudentFields = {
+      Name: 200,
+      Email: 320,
+      ProgramName: 200,
+      Session: 100,
+      UniName: 1000,
+      About: 5000,
+      FBLink: 2000,
+      LinkedIn: 2000,
+      OtherLink: 2000,
+    };
     // Load JSON
     // const mappings = JSON.parse(fs.readFileSync('abc.json', "utf8"));
 
@@ -71,67 +271,46 @@ async function run() {
     // console.log("Matched:", result.matchedCount);
     // console.log("Modified:", result.modifiedCount);
     // ======================Login Endpoint =======================================
-    app.post("/login", (req, res) => {
-      // check if email exists
-      // console.log(req.body.email);
+    app.post("/login", async (req, res) => {
       const { email, password } = req.body;
-      memberCollection
-        .findOne({ email: email })
 
-        //if email exists
-        .then((user) => {
-          // compare the password entered and the hashed password found
-          bcrypt
-            .compare(password, user.password)
-            // if the passwords match
-            .then((passwordCheck) => {
-              // check if password matches
-              if (!passwordCheck) {
-                return res.status(400).send({
-                  message: "Passwords does not match",
-                  error,
-                });
-              }
+      if (typeof email !== "string" || typeof password !== "string") {
+        return res.status(400).json({ message: "Email and password are required." });
+      }
 
-              //   create JWT token
-              const token = jwt.sign(
-                {
-                  userId: user._id,
-                  userEmail: user.email,
-                },
-                "RANDOM-TOKEN",
-                { expiresIn: "24h" },
-              );
+      try {
+        const user = await memberCollection.findOne({ email });
 
-              //   return success response
-              res.status(200).send({
-                message: "Login Successful",
-                email: user.email,
-                role: user.adminType,
-                token,
-              });
-            })
-            // catch error if password does not match
-            .catch((error) => {
-              res.status(400).send({
-                message: "Passwords does not match",
-                error,
-              });
-            });
-        })
-        // catch error if email does not exist
-        .catch((e) => {
-          res.status(404).send({
-            message: "Email not found",
-            e,
-          });
+        if (
+          !user ||
+          typeof user.password !== "string" ||
+          !(await bcrypt.compare(password, user.password))
+        ) {
+          return res.status(401).json({ message: "Invalid email or password." });
+        }
+
+        const token = jwt.sign(
+          { userId: user._id.toString() },
+          jwtSecret,
+          { expiresIn: "24h" },
+        );
+
+        res.status(200).json({
+          message: "Login Successful",
+          email: user.email,
+          role: Array.isArray(user.adminType) ? user.adminType : [],
+          token,
         });
+      } catch (error) {
+        console.error("Error logging in:", error);
+        res.status(500).json({ message: "Unable to complete login." });
+      }
     });
 
     //=============================== EVENT ==========================================
     // ===========================Event Post
 
-    app.post("/events", upload.single("banner"), (req, res) => {
+    app.post("/events", authenticate, requireEventManagement, upload.single("banner"), (req, res) => {
       console.log(req.file);
       // res.send("Found the data");
       const newEvent = req.body;
@@ -206,7 +385,7 @@ async function run() {
     });
 
     // =========================== Event Edit
-    app.put("/events/:eventId", upload.single("banner"), async (req, res) => {
+    app.put("/events/:eventId", authenticate, requireEventManagement, upload.single("banner"), async (req, res) => {
       const eventId = req.params.eventId;
 
       try {
@@ -258,7 +437,7 @@ async function run() {
 
     //===========================Event Delete
 
-    app.delete("/events/:eventId", async (req, res) => {
+    app.delete("/events/:eventId", authenticate, requireEventManagement, async (req, res) => {
       const eventId = req.params.eventId;
       console.log("Id to delete:", req.params);
       const query = { _id: new ObjectId(eventId) };
@@ -280,7 +459,7 @@ async function run() {
     // ===========================BLOG =====================================
 
     //===========================Blog Post
-    app.post("/blogs", upload.single("blogImage"), async (req, res) => {
+    app.post("/blogs", authenticate, requireBlogManagement, upload.single("blogImage"), async (req, res) => {
       try {
         const { title, author, date, time, text } = req.body;
 
@@ -396,7 +575,7 @@ async function run() {
 
     // =========================== BLOG EDIT ===========================
 
-    app.put("/blogs/:blogId", upload.single("blogImage"), async (req, res) => {
+    app.put("/blogs/:blogId", authenticate, requireBlogManagement, upload.single("blogImage"), async (req, res) => {
       const { blogId } = req.params;
 
       try {
@@ -450,7 +629,7 @@ async function run() {
 
     // =========================== BLOG DELETE ===========================
 
-    app.delete("/blogs/:blogId", async (req, res) => {
+    app.delete("/blogs/:blogId", authenticate, requireBlogManagement, async (req, res) => {
       const { blogId } = req.params;
 
       try {
@@ -485,45 +664,382 @@ async function run() {
     //===================================Alumni============================
     //get all alumni
     app.get("/alumni", async (req, res) => {
-      const cursor = alumniCollection.find();
+      const cursor = alumniCollection.find(
+        {},
+        { projection: publicStudentProjection },
+      );
       const alumniList = await cursor.toArray();
       // console.log(alumniList);
       res.send(alumniList);
     });
 
+    app.patch(
+      "/alumni/:id",
+      authenticate,
+      requireSuperAdmin,
+      async (req, res) => {
+        const { id } = req.params;
+
+        if (!isValidObjectId(id)) {
+          return res.status(400).json({ message: "Invalid student ID." });
+        }
+
+        if (
+          !req.body ||
+          typeof req.body !== "object" ||
+          Array.isArray(req.body)
+        ) {
+          return res.status(400).json({ message: "Invalid request body." });
+        }
+
+        const fields = Object.keys(req.body);
+        if (
+          fields.length === 0 ||
+          fields.some((field) => !Object.hasOwn(editableStudentFields, field))
+        ) {
+          return res.status(400).json({
+            message: "Provide student profile fields that can be edited.",
+          });
+        }
+
+        const updatedFields = {};
+        for (const [field, value] of Object.entries(req.body)) {
+          if (
+            typeof value !== "string" ||
+            value.length > editableStudentFields[field]
+          ) {
+            return res.status(400).json({
+              message: `${field} must be a string no longer than ${editableStudentFields[field]} characters.`,
+            });
+          }
+
+          const normalizedValue = value.trim();
+          if (field === "Name" && !normalizedValue) {
+            return res.status(400).json({ message: "Name cannot be empty." });
+          }
+
+          if (["FBLink", "OtherLink"].includes(field) && normalizedValue) {
+            let url;
+            try {
+              url = new URL(normalizedValue);
+            } catch {
+              return res.status(400).json({
+                message: `${field} must be a valid HTTP or HTTPS URL.`,
+              });
+            }
+
+            if (!["http:", "https:"].includes(url.protocol)) {
+              return res.status(400).json({
+                message: `${field} must use HTTP or HTTPS.`,
+              });
+            }
+          }
+
+          if (
+            field === "Email" &&
+            normalizedValue &&
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue)
+          ) {
+            return res.status(400).json({ message: "Enter a valid email address." });
+          }
+
+          updatedFields[field] = normalizedValue;
+        }
+
+        try {
+          const result = await alumniCollection.updateOne(
+            { _id: new ObjectId(id) },
+            { $set: updatedFields },
+          );
+
+          if (result.matchedCount === 0) {
+            return res.status(404).json({ message: "Student not found." });
+          }
+
+          const student = await alumniCollection.findOne({
+            _id: new ObjectId(id),
+          }, { projection: publicStudentProjection });
+          if (!student) {
+            return res.status(404).json({ message: "Student not found." });
+          }
+
+          res.status(200).json({
+            message: "Student profile updated successfully.",
+            data: student,
+          });
+        } catch (error) {
+          console.error("Error updating student profile:", error);
+          res.status(500).json({ message: "Unable to update student profile." });
+        }
+      },
+    );
+
+    app.delete(
+      "/alumni/:id",
+      authenticate,
+      requireSuperAdmin,
+      async (req, res) => {
+        const { id } = req.params;
+
+        if (!isValidObjectId(id)) {
+          return res.status(400).json({ message: "Invalid student ID." });
+        }
+
+        const studentId = new ObjectId(id);
+        const session = client.startSession();
+        let deleted = false;
+        try {
+          await session.withTransaction(async () => {
+            deleted = false;
+            const student = await alumniCollection.findOne(
+              { _id: studentId },
+              { session },
+            );
+            if (!student) return;
+
+            await alumniCollection.updateOne(
+              { _id: studentId },
+              { $inc: { _accountLinkRevision: 1 } },
+              { session },
+            );
+            await memberCollection.updateMany(
+              { studentId },
+              { $unset: { studentId: "" } },
+              { session },
+            );
+
+            const result = await alumniCollection.deleteOne(
+              { _id: studentId },
+              { session },
+            );
+            deleted = result.deletedCount === 1;
+          });
+
+          if (!deleted) {
+            return res.status(404).json({ message: "Student not found." });
+          }
+
+          res.status(200).json({
+            message: "Student profile deleted. Linked login accounts were preserved.",
+            deletedId: id,
+          });
+        } catch (error) {
+          console.error("Error deleting student profile:", error);
+          res
+            .status(isTransactionUnavailable(error) ? 503 : 500)
+            .json({ message: "Unable to safely delete student profile." });
+        } finally {
+          await session.endSession();
+        }
+      },
+    );
+
+    app.get(
+      "/admin/accounts",
+      authenticate,
+      requireSuperAdmin,
+      async (req, res) => {
+        const search = typeof req.query.search === "string"
+          ? req.query.search.trim().slice(0, 100)
+          : "";
+        const filters = [accountQuery];
+
+        if (search) {
+          const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const searchRegex = new RegExp(escapedSearch, "i");
+          filters.push({
+            $or: [
+              { name: searchRegex },
+              { Name: searchRegex },
+              { email: searchRegex },
+            ],
+          });
+        }
+
+        try {
+          const accounts = await memberCollection
+            .find(
+              { $and: filters },
+              {
+                projection: {
+                  name: 1,
+                  Name: 1,
+                  email: 1,
+                  adminType: 1,
+                  studentId: 1,
+                },
+              },
+            )
+            .sort({ email: 1 })
+            .toArray();
+
+          res.status(200).json(
+            accounts.map((account) => ({
+              ...safeAccount(account),
+              isCurrentUser:
+                account._id.toString() ===
+                req.authenticatedAccount._id.toString(),
+            })),
+          );
+        } catch (error) {
+          console.error("Error fetching administrative accounts:", error);
+          res.status(500).json({ message: "Unable to fetch accounts." });
+        }
+      },
+    );
+
+    app.patch(
+      "/admin/accounts/:id/roles",
+      authenticate,
+      requireSuperAdmin,
+      async (req, res) => {
+        const { id } = req.params;
+        const { roles } = req.body || {};
+        const rolesError = validateRoles(roles, true);
+
+        if (!isValidObjectId(id)) {
+          return res.status(400).json({ message: "Invalid account ID." });
+        }
+
+        if (rolesError) {
+          return res.status(400).json({ message: rolesError });
+        }
+
+        const accountId = new ObjectId(id);
+        if (req.authenticatedAccount._id.equals(accountId)) {
+          return res.status(403).json({ message: "You cannot change your own roles." });
+        }
+
+        const session = client.startSession();
+        let outcome;
+        try {
+          await session.withTransaction(async () => {
+            outcome = undefined;
+            outcome = await withRoleChangeLock(session, async () => {
+              const account = await memberCollection.findOne(
+                { _id: accountId, ...accountQuery },
+                { session },
+              );
+
+              if (!account) {
+                return { status: 404, message: "Account not found." };
+              }
+
+              const superAdminError = await ensureLastSuperAdminRemains(
+                account,
+                roles,
+                session,
+              );
+              if (superAdminError) {
+                return { status: 400, message: superAdminError };
+              }
+
+              await memberCollection.updateOne(
+                { _id: account._id, ...accountQuery },
+                { $set: { adminType: roles } },
+                { session },
+              );
+
+              const updatedAccount = await memberCollection.findOne(
+                { _id: account._id },
+                {
+                  session,
+                  projection: {
+                    name: 1,
+                    Name: 1,
+                    email: 1,
+                    adminType: 1,
+                    studentId: 1,
+                  },
+                },
+              );
+
+              return {
+                status: 200,
+                data: safeAccount(updatedAccount),
+              };
+            });
+          });
+
+          if (outcome.status !== 200) {
+            return res.status(outcome.status).json({ message: outcome.message });
+          }
+
+          res.status(200).json({
+            message: "Account roles updated successfully.",
+            data: outcome.data,
+          });
+        } catch (error) {
+          console.error("Error updating account roles:", error);
+          res
+            .status(isTransactionUnavailable(error) ? 503 : 500)
+            .json({ message: "Unable to safely update account roles." });
+        } finally {
+          await session.endSession();
+        }
+      },
+    );
+
+    app.post(
+      "/admin/students/:id/link-account",
+      authenticate,
+      requireSuperAdmin,
+      (_req, res) =>
+        res.status(503).json({
+          message:
+            "Student-account linking is disabled until account-owner confirmation is available.",
+        }),
+    );
+
     //==============================MEMBERS======================================
     //======================Get Members
     app.get("/members", async (req, res) => {
-      const cursor = memberCollection.find();
+      const cursor = memberCollection.find(
+        { password: { $exists: false } },
+        { projection: publicMemberProjection },
+      );
       const memberList = await cursor.toArray();
       // console.log(alumniList);
       res.send(memberList);
     });
     //======================Get Member by ID
     app.get("/profile/:profileId/:designation", async (req, res) => {
-      const profileId = req.params.profileId;
-      const desg = req.params.designation;
-      const oId = new ObjectId(profileId);
-      const profileCollection =
-        desg === "team" ? memberCollection : alumniCollection;
+      const { profileId, designation } = req.params;
 
-      profileCollection
-        .find({ _id: oId })
-        .next()
-        .then((member) => {
-          if (!member) {
-            return res.status(404).json({ message: "Member doesn't exist" });
-          }
+      if (!isValidObjectId(profileId)) {
+        return res.status(400).json({ message: "Invalid profile ID." });
+      }
 
-          res.status(200).json({
-            message: "Data extracted successfully",
-            data: member,
-          });
-        })
-        .catch((error) => {
-          console.error("Error fetching event:", error);
-          res.status(500).json({ message: "Internal Server Error" });
+      if (!["team", "alumni"].includes(designation)) {
+        return res.status(400).json({ message: "Invalid profile designation." });
+      }
+
+      try {
+        const profile =
+          designation === "team"
+            ? await memberCollection.findOne(
+                {
+                  _id: new ObjectId(profileId),
+                  password: { $exists: false },
+                },
+                { projection: publicMemberProjection },
+              )
+            : await alumniCollection.findOne({
+                _id: new ObjectId(profileId),
+              }, { projection: publicStudentProjection });
+
+        if (!profile) {
+          return res.status(404).json({ message: "Profile not found." });
+        }
+
+        res.status(200).json({
+          message: "Data extracted successfully",
+          data: profile,
         });
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
     });
 
     //========================checking the connection of mongodb=====================================================

@@ -18,6 +18,7 @@ import Faq from "../pages/FAQ/Faq";
 import Login from "../pages/Login/Login";
 import MemberManagement from "../components/AdminComponents/MemberManagement/MemberManagement";
 import AlumniManagement from "../components/AdminComponents/AlumniManagement/AlumniManagement";
+import RoleManagement from "../components/AdminComponents/RoleManagement";
 import TermsCOnditions from "../pages/TermsConditions/TermsCOnditions";
 import PrivacyPolicy from "../pages/PrivacyPolicy/PrivacyPolicy";
 import ProtectedRoute from "./ProtectedRoute";
@@ -56,7 +57,7 @@ export const router = createBrowserRouter([
         element: <Profile_Details></Profile_Details>,
         loader: ({ params }) =>
           fetch(
-            `http://localhost:5001/profile/${params.profileId}/${params.designation}`,
+            `${import.meta.env.VITE_API_URL}/profile/${params.profileId}/${params.designation}`,
           ),
       },
       {
@@ -157,6 +158,10 @@ export const router = createBrowserRouter([
       {
         path: "manageAlumni",
         element: <AlumniManagement></AlumniManagement>,
+      },
+      {
+        path: "manageRoles",
+        element: <RoleManagement />,
       },
       {
         path: "logout",

@@ -3,44 +3,54 @@ import { createContext, useState } from "react";
 // creating a context
 export const AuthContext = createContext();
 
+const getStoredRoles = () => {
+  const storedRole = localStorage.getItem("role");
+  if (!storedRole) return [];
 
-const AuthProvider = ({children}) => {
-  // const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(()=> {
-    const token = localStorage.getItem("token");
-    return token !== null;
-  });
-  const adminRole = localStorage.getItem("role");
-  const [role, setRole] = useState([adminRole]);
-  console.log(role);
+  try {
+    const parsedRoles = JSON.parse(storedRole);
+    if (Array.isArray(parsedRoles)) {
+      return parsedRoles.filter((role) => typeof role === "string");
+    }
+  } catch {
+    return storedRole
+      .split(",")
+      .map((role) => role.trim())
+      .filter(Boolean);
+  }
 
-  // useEffect(() => {
-  //   // Check if token exists in localStorage
-  //   const storedToken = localStorage.getItem('token');
-  //   if (storedToken) {
-  //     // Validate token on the server (e.g., using an API call)
-  //     // If token is valid, setToken(storedToken);
-  //     setToken(storedToken);
-  //   }
-  // }, []);
+  return [];
+};
+
+const AuthProvider = ({ children }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => localStorage.getItem("token") !== null,
+  );
+  const [role, setCurrentRole] = useState(getStoredRoles);
+
+  const setRole = (nextRoles) => {
+    const normalizedRoles = Array.isArray(nextRoles) ? nextRoles : [];
+    setCurrentRole(normalizedRoles);
+    localStorage.setItem("role", JSON.stringify(normalizedRoles));
+  };
 
   const login = () => {
     setIsLoggedIn(true);
-    
   };
 
   const logout = () => {
     setIsLoggedIn(false);
-    localStorage.removeItem('token');
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    setCurrentRole([]);
   };
 
-    const authInfo  = {isLoggedIn, login, logout, role, setRole};
-    return (
-        // set provider with value
-        <AuthContext.Provider value={authInfo}>
-          {children}
-        </AuthContext.Provider>
-    );
+  const authInfo = { isLoggedIn, login, logout, role, setRole };
+  return (
+    <AuthContext.Provider value={authInfo}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
 export default AuthProvider;

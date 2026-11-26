@@ -3,6 +3,7 @@ import { MdOutlineFileUpload, MdClose } from "react-icons/md";
 import Swal from "sweetalert2";
 import RichTextEditor, { useRichTextEditor } from "./RichTextEditor";
 import CoverCropper from "./CoverCropper";
+import { adminAuthHeaders } from "../../../utils/adminApi";
 
 const API = import.meta.env.VITE_API_URL;
 
@@ -172,6 +173,7 @@ const CreateBlog = ({ onClose, onCreated, editBlog = null }) => {
 
       const response = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
+        headers: adminAuthHeaders(),
         body: formData,
       });
 

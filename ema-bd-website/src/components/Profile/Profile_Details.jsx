@@ -3,6 +3,17 @@ import { FaFacebookF, FaLinkedinIn, FaUniversity } from "react-icons/fa";
 import { CiLink } from "react-icons/ci";
 import { FiMail } from "react-icons/fi";
 
+const safeHttpUrl = (value) => {
+  if (typeof value !== "string" || !value) return "";
+
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+};
+
 const Profile_Details = () => {
   const API = import.meta.env.VITE_API_URL;
   const { designation } = useParams();
@@ -12,9 +23,9 @@ const Profile_Details = () => {
 
   if (designation === "team") {
     const { linkedIn, url, name, position, email, about } = data;
-    const linkedinUrl = linkedIn?.startsWith("http")
-      ? linkedIn
-      : `https://${linkedIn}`;
+    const linkedinUrl = safeHttpUrl(
+      linkedIn?.startsWith("http") ? linkedIn : `https://${linkedIn}`,
+    );
 
     return (
       <div className="min-h-screen py-8 md:py-16">
@@ -39,7 +50,7 @@ const Profile_Details = () => {
                 </p>
 
                 <div className="mt-6 flex gap-4">
-                  {linkedIn && (
+                  {linkedinUrl && (
                     <a
                       href={linkedinUrl}
                       target="_blank"
@@ -102,9 +113,11 @@ const Profile_Details = () => {
     Image,
   } = data;
 
-  const linkedinUrl = LinkedIn?.startsWith("http")
-    ? LinkedIn
-    : `https://${LinkedIn}`;
+  const linkedinUrl = safeHttpUrl(
+    LinkedIn?.startsWith("http") ? LinkedIn : `https://${LinkedIn}`,
+  );
+  const facebookUrl = safeHttpUrl(FBLink);
+  const otherUrl = safeHttpUrl(OtherLink);
 
   const universities = UniName
     ? UniName.replace(/\d+\.\s*/g, "")
@@ -146,9 +159,9 @@ const Profile_Details = () => {
               </div>
 
               <div className="mt-6 flex gap-4">
-                {FBLink && (
+                {facebookUrl && (
                   <a
-                    href={FBLink}
+                    href={facebookUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rounded-full bg-slate-100 p-3 transition hover:bg-blue-600 hover:text-white"
@@ -157,7 +170,7 @@ const Profile_Details = () => {
                   </a>
                 )}
 
-                {LinkedIn && (
+                {linkedinUrl && (
                   <a
                     href={linkedinUrl}
                     target="_blank"
@@ -168,9 +181,9 @@ const Profile_Details = () => {
                   </a>
                 )}
 
-                {OtherLink && (
+                {otherUrl && (
                   <a
-                    href={OtherLink}
+                    href={otherUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="rounded-full bg-slate-100 p-3 transition hover:bg-slate-900 hover:text-white"

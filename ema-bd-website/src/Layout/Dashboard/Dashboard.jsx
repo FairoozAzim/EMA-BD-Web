@@ -7,6 +7,7 @@ import { MdDashboard, MdEvent } from "react-icons/md";
 import { AiOutlineLogout } from "react-icons/ai";
 import { RiMenu2Line, RiTeamLine, RiCloseLine } from "react-icons/ri";
 import { PiStudentFill } from "react-icons/pi";
+import { FaUserShield } from "react-icons/fa";
 
 import { AuthContext } from "../../providers/AuthProvider";
 
@@ -40,6 +41,12 @@ const Dashboard = () => {
       text: "Members",
       Icon: RiTeamLine,
       roles: ["SuperAdmin", "Monitor"],
+    },
+    {
+      to: "/dashboard/manageRoles",
+      text: "Account Roles",
+      Icon: FaUserShield,
+      roles: ["SuperAdmin"],
     },
   ];
 
