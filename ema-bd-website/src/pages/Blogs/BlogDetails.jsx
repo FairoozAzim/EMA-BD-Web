@@ -1,9 +1,18 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import ErrorPage from "../Error/Error";
 import DOMPurify from "dompurify";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 import { API_URL, imageUrl, formatDate, isHtmlContent } from "./BlogUtils";
+
+const VISITOR_ID_KEY = "ema-blog-visitor-id";
+const VISITOR_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#0F2A5F] md:text-base";
@@ -40,8 +49,51 @@ const BlogDetailsSkeleton = () => (
   </div>
 );
 
+const createVisitorId = () => {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+
+  if (typeof globalThis.crypto?.getRandomValues !== "function") {
+    throw new Error("Secure random IDs are unavailable.");
+  }
+
+  const bytes = globalThis.crypto.getRandomValues(new Uint8Array(16));
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+};
+
+const getVisitorId = () => {
+  const storedVisitorId = localStorage.getItem(VISITOR_ID_KEY);
+  if (storedVisitorId && VISITOR_ID_PATTERN.test(storedVisitorId)) {
+    return storedVisitorId;
+  }
+
+  const visitorId = createVisitorId();
+  localStorage.setItem(VISITOR_ID_KEY, visitorId);
+  return visitorId;
+};
+
 const BlogDetails = () => {
   const { blogId } = useParams();
+  const queryClient = useQueryClient();
+  const [visitorId, setVisitorId] = useState("");
+  const [visitorIdError, setVisitorIdError] = useState("");
+  const [commentError, setCommentError] = useState("");
+  const [commentSuccess, setCommentSuccess] = useState("");
+  const commentSubmissionInProgress = useRef(false);
+
+  useEffect(() => {
+    try {
+      setVisitorId(getVisitorId());
+    } catch (error) {
+      console.error("Unable to initialize anonymous blog visitor ID:", error);
+      setVisitorIdError("Likes are unavailable in this browser.");
+    }
+  }, []);
 
   const {
     data: blog,
@@ -75,8 +127,110 @@ const BlogDetails = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Comments live in local state only (not saved to a database)
-  const [newComments, setNewComments] = useState([]);
+  const commentsQueryKey = ["blogComments", blogId];
+  const commentsQuery = useQuery({
+    queryKey: commentsQueryKey,
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/blogs/${blogId}/comments`);
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to load comments.");
+      }
+
+      return result.comments;
+    },
+    enabled: Boolean(blog),
+  });
+
+  const likesQueryKey = ["blogLikes", blogId, visitorId];
+  const likesQuery = useQuery({
+    queryKey: likesQueryKey,
+    queryFn: async () => {
+      const query = new URLSearchParams({ visitorId });
+      const response = await fetch(
+        `${API_URL}/blogs/${blogId}/likes?${query.toString()}`,
+      );
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to load likes.");
+      }
+
+      return result;
+    },
+    enabled: Boolean(blog && visitorId),
+  });
+
+  const likeMutation = useMutation({
+    mutationFn: async (liked) => {
+      const response = await fetch(`${API_URL}/blogs/${blogId}/likes`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ visitorId, liked }),
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result.message || "Unable to update likes.");
+      }
+
+      return result;
+    },
+    onMutate: async (liked) => {
+      await queryClient.cancelQueries({ queryKey: likesQueryKey });
+      const previousLikes = queryClient.getQueryData(likesQueryKey);
+
+      if (previousLikes) {
+        queryClient.setQueryData(likesQueryKey, {
+          ...previousLikes,
+          liked,
+          count: Math.max(0, previousLikes.count + (liked ? 1 : -1)),
+        });
+      }
+
+      return { previousLikes };
+    },
+    onError: (_error, _liked, context) => {
+      if (context?.previousLikes) {
+        queryClient.setQueryData(likesQueryKey, context.previousLikes);
+      }
+    },
+    onSuccess: (likes) => {
+      queryClient.setQueryData(likesQueryKey, likes);
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: likesQueryKey }),
+  });
+
+  const commentMutation = useMutation({
+    mutationFn: async (comment) => {
+      const response = await fetch(`${API_URL}/blogs/${blogId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(comment),
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error(
+            "You've submitted comments too frequently. Please try again later.",
+          );
+        }
+        throw new Error(result.message || "Unable to submit comment.");
+      }
+
+      return result;
+    },
+    onSuccess: (result) => {
+      queryClient.setQueryData(commentsQueryKey, (comments = []) => [
+        result.data,
+        ...comments,
+      ]);
+      return queryClient.invalidateQueries({ queryKey: commentsQueryKey });
+    },
+  });
 
   if (isLoading) {
     return <BlogDetailsSkeleton />;
@@ -90,28 +244,38 @@ const BlogDetails = () => {
     ? DOMPurify.sanitize(blog.text, { ADD_ATTR: ["target"] }) // keep target="_blank" on links
     : "";
 
-  const comments = [...(blog.comments ?? []), ...newComments];
+  const comments = commentsQuery.data || [];
 
   const recentPosts = [...allBlogs]
     .filter((b) => b._id !== blog._id)
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 4);
 
-  const handleCommentSubmit = (event) => {
+  const handleCommentSubmit = async (event) => {
     event.preventDefault();
+    if (commentSubmissionInProgress.current || commentMutation.isPending) return;
+
     const form = event.currentTarget;
     const data = new FormData(form);
 
-    setNewComments((prev) => [
-      ...prev,
-      {
+    setCommentError("");
+    setCommentSuccess("");
+    commentSubmissionInProgress.current = true;
+
+    try {
+      await commentMutation.mutateAsync({
         name: data.get("name"),
         email: data.get("email"),
         comment: data.get("comment"),
-      },
-    ]);
-
-    form.reset();
+        commentReference: data.get("commentReference"),
+      });
+      form.reset();
+      setCommentSuccess("Comment posted successfully!");
+    } catch (error) {
+      setCommentError(error.message || "Unable to submit comment.");
+    } finally {
+      commentSubmissionInProgress.current = false;
+    }
   };
 
   return (
@@ -162,6 +326,47 @@ const BlogDetails = () => {
               {blog.text}
             </article>
           )}
+
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={() => likeMutation.mutate(!likesQuery.data?.liked)}
+              disabled={
+                !visitorId ||
+                likesQuery.isLoading ||
+                Boolean(likesQuery.error) ||
+                likeMutation.isPending
+              }
+              aria-pressed={Boolean(likesQuery.data?.liked)}
+              className={`inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                likesQuery.data?.liked
+                  ? "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-red-200 hover:text-red-600"
+              }`}
+            >
+              {likesQuery.data?.liked ? (
+                <MdFavorite aria-hidden="true" size={18} />
+              ) : (
+                <MdFavoriteBorder aria-hidden="true" size={18} />
+              )}
+              {likeMutation.isPending
+                ? "Updating..."
+                : likesQuery.isLoading
+                  ? "Loading likes..."
+                  : likesQuery.data?.liked
+                    ? "Unlike"
+                    : "Like"}
+              <span>({likesQuery.data?.count ?? 0})</span>
+            </button>
+            {(visitorIdError || likesQuery.error || likeMutation.error) && (
+              <p role="alert" className="mt-2 text-sm text-red-600">
+                {visitorIdError ||
+                  likesQuery.error?.message ||
+                  likeMutation.error?.message}
+              </p>
+            )}
+          </div>
+
           {/* Comment form */}
           <section className="mt-14 border-t border-slate-200 pt-10">
             <div className="mb-6">
@@ -178,6 +383,20 @@ const BlogDetails = () => {
               onSubmit={handleCommentSubmit}
               className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6"
             >
+              <div
+                aria-hidden="true"
+                className="absolute -left-[10000px] h-px w-px overflow-hidden"
+              >
+                <label htmlFor="commentReference">Leave this field empty</label>
+                <input
+                  id="commentReference"
+                  name="commentReference"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label
@@ -191,6 +410,7 @@ const BlogDetails = () => {
                     id="name"
                     name="name"
                     required
+                    maxLength={100}
                     autoComplete="name"
                     className={inputClass}
                   />
@@ -208,6 +428,7 @@ const BlogDetails = () => {
                     id="email"
                     name="email"
                     required
+                    maxLength={254}
                     autoComplete="email"
                     className={inputClass}
                   />
@@ -226,17 +447,29 @@ const BlogDetails = () => {
                   name="comment"
                   rows={4}
                   required
+                  maxLength={2000}
                   className={`${inputClass} resize-y`}
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full rounded-full bg-[#0F2A5F] px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 sm:w-auto md:text-sm"
+                disabled={commentMutation.isPending}
+                className="w-full rounded-full bg-[#0F2A5F] px-6 py-2.5 text-xs font-semibold text-white transition hover:bg-blue-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto md:text-sm"
               >
-                Post comment
+                {commentMutation.isPending ? "Submitting..." : "Post comment"}
               </button>
             </form>
+            {commentError && (
+              <p role="alert" className="mt-3 text-sm text-red-600">
+                {commentError}
+              </p>
+            )}
+            {commentSuccess && (
+              <p role="status" className="mt-3 text-sm text-green-700">
+                {commentSuccess}
+              </p>
+            )}
           </section>
 
           {/* Comments */}
@@ -245,30 +478,41 @@ const BlogDetails = () => {
               Comments ({comments.length})
             </h2>
 
-            {comments.length === 0 ? (
+            {commentsQuery.isLoading ? (
+              <p role="status" className="text-xs text-slate-500 md:text-base">
+                Loading comments...
+              </p>
+            ) : commentsQuery.error ? (
+              <p role="alert" className="text-xs text-red-600 md:text-base">
+                {commentsQuery.error.message}
+              </p>
+            ) : comments.length === 0 ? (
               <p className="text-xs text-slate-500 md:text-base">
-                No comments yet. Be the first to ask a question.
+                No approved comments yet. Be the first to ask a question.
               </p>
             ) : (
               <ul className="space-y-4">
-                {comments.map((c, index) => (
+                {comments.map((comment, index) => (
                   <li
-                    key={index}
+                    key={`${comment.createdAt}-${index}`}
                     className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:gap-4 sm:p-5"
                   >
                     <div
                       aria-hidden="true"
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0F2A5F] text-sm font-semibold text-white"
                     >
-                      {c.name?.charAt(0).toUpperCase()}
+                      {comment.name?.charAt(0).toUpperCase()}
                     </div>
 
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-slate-900 md:text-base">
-                        {c.name}
+                        {comment.name}
                       </p>
                       <p className="mt-1 whitespace-pre-line break-words text-sm text-slate-600 md:text-base">
-                        {c.comment}
+                        {comment.comment}
+                      </p>
+                      <p className="mt-2 text-xs text-slate-400">
+                        {formatDate(comment.createdAt)}
                       </p>
                     </div>
                   </li>

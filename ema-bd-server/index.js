@@ -83,6 +83,16 @@ async function run() {
       about: 1,
       year: 1,
     };
+    const publicBlogProjection = {
+      _id: 1,
+      title: 1,
+      author: 1,
+      date: 1,
+      time: 1,
+      text: 1,
+      blogImage: 1,
+      likes: 1,
+    };
     const publicStudentProjection = { _accountLinkRevision: 0 };
     try {
       await memberCollection.createIndex(
@@ -97,8 +107,85 @@ async function run() {
       console.error("Unable to enforce unique student-account links:", error);
     }
 
+    try {
+      await commentCollection.createIndex(
+        { blogId: 1, status: 1, createdAt: -1 },
+        { name: "blog_comment_public_lookup" },
+      );
+    } catch (error) {
+      console.error("Unable to create blog comment lookup index:", error);
+    }
+
     const isValidObjectId = (id) =>
       typeof id === "string" && /^[a-f\d]{24}$/i.test(id);
+
+    const isValidVisitorId = (id) =>
+      typeof id === "string" &&
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        id,
+      );
+
+    const commentRateLimits = new Map();
+    const commentRateWindowMs = 15 * 60 * 1000;
+    const commentRateLimit = 3;
+    const maxTrackedCommentIps = 5000;
+    const reserveCommentSubmission = (req) => {
+      const now = Date.now();
+      const ipAddress = req.ip || req.socket.remoteAddress || "unknown";
+      let currentLimit = commentRateLimits.get(ipAddress);
+
+      if (currentLimit && currentLimit.resetAt <= now) {
+        commentRateLimits.delete(ipAddress);
+        currentLimit = undefined;
+      }
+
+      if (!currentLimit) {
+        if (commentRateLimits.size >= maxTrackedCommentIps) {
+          for (const [trackedIp, limit] of commentRateLimits) {
+            if (limit.resetAt <= now) {
+              commentRateLimits.delete(trackedIp);
+            }
+          }
+        }
+
+        if (commentRateLimits.size >= maxTrackedCommentIps) {
+          return { allowed: false, status: 503 };
+        }
+
+        currentLimit = { count: 0, resetAt: now + commentRateWindowMs };
+        commentRateLimits.set(ipAddress, currentLimit);
+      }
+
+      if (currentLimit.count >= commentRateLimit) {
+        return {
+          allowed: false,
+          status: 429,
+          retryAfterSeconds: Math.ceil((currentLimit.resetAt - now) / 1000),
+        };
+      }
+
+      currentLimit.count += 1;
+      const reservationResetAt = currentLimit.resetAt;
+      let released = false;
+
+      return {
+        allowed: true,
+        release: () => {
+          if (released) return;
+          released = true;
+
+          const activeLimit = commentRateLimits.get(ipAddress);
+          if (!activeLimit || activeLimit.resetAt !== reservationResetAt) {
+            return;
+          }
+
+          activeLimit.count -= 1;
+          if (activeLimit.count === 0) {
+            commentRateLimits.delete(ipAddress);
+          }
+        },
+      };
+    };
 
     const authenticate = async (req, res, next) => {
       const authorization = req.get("authorization") || "";
@@ -499,65 +586,303 @@ async function run() {
     });
 
     //===========================Blog Comment
-    app.post("/blogComment", (req, res) => {
-      const newComment = req.body;
+    app.get("/blogs/:blogId/comments", async (req, res) => {
+      const { blogId } = req.params;
 
-      console.log("comment: ", newComment);
-      commentCollection
-        .insertOne(newComment)
-        .then((comment) => {
-          res.status(200).send({
-            message: "Comment posted successfully",
-            data: newComment,
-          });
-        })
-        .catch((error) => {
-          res.status(400).send({
-            message: "Something went wrong! Please try again.",
-            error,
-          });
+      if (!isValidObjectId(blogId)) {
+        return res.status(400).json({ message: "Invalid blog ID." });
+      }
+
+      try {
+        const objectId = new ObjectId(blogId);
+        const blog = await blogCollection.findOne(
+          { _id: objectId },
+          { projection: { _id: 1 } },
+        );
+
+        if (!blog) {
+          return res.status(404).json({ message: "Blog not found." });
+        }
+
+        const comments = await commentCollection
+          .find(
+            { blogId: objectId },
+            {
+              projection: {
+                _id: 0,
+                name: 1,
+                comment: 1,
+                createdAt: 1,
+              },
+            },
+          )
+          .sort({ createdAt: -1 })
+          .toArray();
+
+        res.status(200).json({ comments });
+      } catch (error) {
+        console.error("Error fetching blog comments:", error);
+        res.status(500).json({ message: "Unable to fetch comments." });
+      }
+    });
+
+    app.post("/blogs/:blogId/comments", async (req, res) => {
+      const { blogId } = req.params;
+
+      if (!isValidObjectId(blogId)) {
+        return res.status(400).json({ message: "Invalid blog ID." });
+      }
+
+      const body = req.body;
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return res
+          .status(400)
+          .json({ message: "Comment data must be a JSON object." });
+      }
+
+      const allowedFields = new Set([
+        "name",
+        "email",
+        "comment",
+        "commentReference",
+      ]);
+      const unsupportedFields = Object.keys(body).filter(
+        (field) => !allowedFields.has(field),
+      );
+      if (unsupportedFields.length > 0) {
+        return res.status(400).json({
+          message: `Unsupported comment field(s): ${unsupportedFields
+            .map((field) => field.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 40))
+            .filter(Boolean)
+            .join(", ") || "unknown"}.`,
         });
+      }
+
+      if (typeof body.name !== "string") {
+        return res.status(400).json({ message: "Name must be provided as text." });
+      }
+      if (body.name.length > 100) {
+        return res
+          .status(400)
+          .json({ message: "Name must be 100 characters or fewer." });
+      }
+      if (typeof body.email !== "string") {
+        return res
+          .status(400)
+          .json({ message: "Email must be provided as text." });
+      }
+      if (body.email.length > 254) {
+        return res
+          .status(400)
+          .json({ message: "Email must be 254 characters or fewer." });
+      }
+      if (typeof body.comment !== "string") {
+        return res
+          .status(400)
+          .json({ message: "Comment must be provided as text." });
+      }
+      if (body.comment.length > 2000) {
+        return res
+          .status(400)
+          .json({ message: "Comment must be 2000 characters or fewer." });
+      }
+      if (
+        body.commentReference !== undefined &&
+        typeof body.commentReference !== "string"
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Comment verification could not be completed." });
+      }
+      if (body.commentReference?.trim()) {
+        return res
+          .status(400)
+          .json({ message: "Comment verification failed. Please reload the form." });
+      }
+
+      const removeControlCharacters = (value) =>
+        value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "");
+      const name = removeControlCharacters(body.name).trim();
+      const email = body.email.trim().toLowerCase();
+      const comment = removeControlCharacters(body.comment).trim();
+
+      if (
+        !name ||
+        !email ||
+        !comment
+      ) {
+        return res.status(400).json({
+          message: !name
+            ? "Name cannot be empty."
+            : !email
+              ? "Email cannot be empty."
+              : "Comment cannot be empty.",
+        });
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res
+          .status(400)
+          .json({ message: "Enter a valid email address." });
+      }
+
+      let reservation;
+      let commentSaved = false;
+      try {
+        const blogIdObject = new ObjectId(blogId);
+        const blog = await blogCollection.findOne(
+          { _id: blogIdObject },
+          { projection: { _id: 1 } },
+        );
+
+        if (!blog) {
+          return res.status(404).json({ message: "Blog not found." });
+        }
+
+        reservation = reserveCommentSubmission(req);
+        if (!reservation.allowed) {
+          if (reservation.retryAfterSeconds) {
+            res.set("Retry-After", String(reservation.retryAfterSeconds));
+          }
+
+          return res.status(reservation.status).json({
+            message:
+              reservation.status === 429
+                ? "You've submitted comments too frequently. Please try again later."
+                : "Comment submission is temporarily unavailable.",
+          });
+        }
+
+        const createdAt = new Date();
+        await commentCollection.insertOne({
+          _id: new ObjectId(),
+          blogId: blogIdObject,
+          name,
+          email,
+          comment,
+          createdAt,
+        });
+        commentSaved = true;
+
+        return res.status(201).json({
+          message: "Comment posted successfully.",
+          data: { name, comment, createdAt },
+        });
+      } catch (error) {
+        if (!commentSaved) {
+          reservation?.release();
+        }
+        console.error("Error submitting blog comment:", error);
+        res.status(500).json({ message: "Unable to submit comment." });
+      }
     });
 
     //===========================Get Blogs
     app.get("/blogs", async (req, res) => {
-      const cursor = blogCollection.find();
-      const blogsList = await cursor.toArray();
-      // console.log(blogsList);
+      const blogsList = await blogCollection
+        .find({}, { projection: publicBlogProjection })
+        .toArray();
       res.send(blogsList);
     });
-    app.post("/blogs/like/:blogId", async (req, res) => {
-      const blogId = req.params.blogId;
-      console.log(blogId);
+
+    app.get("/blogs/:blogId/likes", async (req, res) => {
+      const { blogId } = req.params;
+      const visitorId = req.query.visitorId;
+
+      if (!isValidObjectId(blogId)) {
+        return res.status(400).json({ message: "Invalid blog ID." });
+      }
+      if (!isValidVisitorId(visitorId)) {
+        return res.status(400).json({ message: "Invalid visitor ID." });
+      }
 
       try {
-        const result = await blogCollection.updateOne(
+        const blog = await blogCollection.findOne(
           { _id: new ObjectId(blogId) },
-          { $inc: { likes: 1 } },
+          { projection: { likes: 1, likedBy: 1 } },
         );
 
-        if (result.modifiedCount > 0) {
-          res.status(200).send({ message: "Blog liked successfully" });
-        } else {
-          res.status(404).send({ message: "Blog not found" });
+        if (!blog) {
+          return res.status(404).json({ message: "Blog not found." });
         }
+
+        res.status(200).json({
+          count: Number.isFinite(blog.likes) ? Math.max(0, blog.likes) : 0,
+          liked: Array.isArray(blog.likedBy) && blog.likedBy.includes(visitorId),
+        });
       } catch (error) {
-        console.error(error);
-        res
-          .status(500)
-          .send({ message: "Something went wrong! Please try again.", error });
+        console.error("Error fetching blog likes:", error);
+        res.status(500).json({ message: "Unable to fetch blog likes." });
+      }
+    });
+
+    app.put("/blogs/:blogId/likes", async (req, res) => {
+      const { blogId } = req.params;
+
+      if (!isValidObjectId(blogId)) {
+        return res.status(400).json({ message: "Invalid blog ID." });
+      }
+
+      const body = req.body;
+      if (
+        !body ||
+        typeof body !== "object" ||
+        Array.isArray(body) ||
+        Object.keys(body).some((field) => !["visitorId", "liked"].includes(field)) ||
+        !isValidVisitorId(body.visitorId) ||
+        typeof body.liked !== "boolean"
+      ) {
+        return res.status(400).json({ message: "Invalid like request." });
+      }
+
+      try {
+        const objectId = new ObjectId(blogId);
+        await blogCollection.updateOne(
+          body.liked
+            ? { _id: objectId, likedBy: { $ne: body.visitorId } }
+            : { _id: objectId, likedBy: body.visitorId },
+          body.liked
+            ? {
+                $addToSet: { likedBy: body.visitorId },
+                $inc: { likes: 1 },
+              }
+            : {
+                $pull: { likedBy: body.visitorId },
+                $inc: { likes: -1 },
+              },
+        );
+
+        const blog = await blogCollection.findOne(
+          { _id: objectId },
+          { projection: { likes: 1, likedBy: 1 } },
+        );
+
+        if (!blog) {
+          return res.status(404).json({ message: "Blog not found." });
+        }
+
+        res.status(200).json({
+          count: Number.isFinite(blog.likes) ? Math.max(0, blog.likes) : 0,
+          liked: Array.isArray(blog.likedBy) && blog.likedBy.includes(body.visitorId),
+        });
+      } catch (error) {
+        console.error("Error updating blog likes:", error);
+        res.status(500).json({ message: "Unable to update blog likes." });
       }
     });
 
     //==========================Get Blog by ID
     app.get("/blogs/:blogId", async (req, res) => {
       const blogId = req.params.blogId;
-      console.log(blogId);
-      const oId = new ObjectId(blogId);
-      blogCollection
-        .find({ _id: oId })
-        .next()
-        .then((blog) => {
+      if (!isValidObjectId(blogId)) {
+        return res.status(400).json({ message: "Invalid blog ID." });
+      }
+
+      try {
+        const blog = await blogCollection.findOne(
+          { _id: new ObjectId(blogId) },
+          { projection: publicBlogProjection },
+        );
+
           if (!blog) {
             return res.status(404).json({ message: "Blog not found" });
           }
@@ -566,11 +891,10 @@ async function run() {
             message: "Data extracted successfully",
             data: blog,
           });
-        })
-        .catch((error) => {
-          console.error("Error fetching event:", error);
-          res.status(500).json({ message: "Internal Server Error" });
-        });
+      } catch (error) {
+        console.error("Error fetching blog:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+      }
     });
 
     // =========================== BLOG EDIT ===========================
